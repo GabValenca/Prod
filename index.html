@@ -11,7 +11,7 @@
 <body class="bg-gray-100">
     <div class="min-h-screen">
         <!-- Campo de Navegação (Menu de opções NAV) -->
-        <nav class="bg-green-900 fixed h-full flex flex-col gap-1 p-2">
+        <nav class="bg-green-900 fixed h-screen sm:h-full sm:w-1/5 flex flex-col gap-2 p-4 sm:static sm:relative">
             <div class="flex items-center gap-3 mb-8">
                 <p class="font-thin text-7xl">🎱</p>
             </div>
@@ -29,15 +29,15 @@
         </nav>
 
         <!-- Campo de Navegação (AD como NAV) -->
-        <nav class="fixed right-0  w-40 h-full flex flex-col gap-1 p-2">
-            <h3 class="text-lg font-semibold mb-4 text-center">Anúncios</h3>
+        <nav class="fixed sm:relative sm:w-1/5 w-full bottom-0 sm:top-0 p-4 bg-white sm:bg-transparent">
+            <h3 class="text-lg font-semibold mb-4 text-center sm:text-left">Anúncios</h3>
             <ul class="space-y-4">
                 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5216817354815564"
      crossorigin="anonymous"></script>
             </ul>
         </nav>
 
-        <main class="ml-15 p-6">
+        <main class="sm:ml-64 sm:mr-64 p-4">
             <div class="max-w-3xl mx-auto flex flex-wrap items-center gap-4 p-4">
                 <div class="flex-1">
                     <div class="flex justify-between items-center mb-8">
@@ -52,10 +52,10 @@
                         </div>
                     </div>
         
-                    <div class="flex justify-between items-start mb-8">
+                    <div class="grid sm:grid-cols-2 gap-4 mb-8">
                         <div>
                             <span class="text-gray-600">Prêmio estimado</span>
-                            <div class="bg-emerald-500 text-4xl  text-white p-2 rounded">R$ 600.000.000,00</div>
+                            <div class="bg-emerald-500 text-4xl sm:text-4xl text-white p-2 rounded">R$ 600.000.000,00</div>
                         </div>
                         <div>
                             <div class="text-gray-600">
@@ -63,12 +63,9 @@
                             </div>
                             <h3 class="text-blue-600 mb-3">Premiação</h3>
                             <div class="text-gray-600">
-                                <p>6 acertos</p>
-                                <p class="font-thin">Não houve ganhadores</p>
-                                <p>5 acertos</p>
-                                <p class="font-thin">39 apostas ganhadoras, R$ 60.526,40</p>
-                                <p>4 acertos</p>
-                                <p class="font-thin">5.000 apostas ganhadoras, R$ 674,43</p>
+                                <p>6 acertos: <span class="font-thin">Não houve ganhadores</span></p>
+                                <p>5 acertos: <span class="font-thin">39 apostas ganhadoras</span></p>
+                                <p>4 acertos: <span class="font-thin">5.000 apostas ganhadoras</span></p>
                             </div>
                             <h3 class="text-blue-600 mt-4 mb-3">Arrecadação total</h3>
                             <p class="text-gray-600">R$ 40.000.000,00</p>
@@ -76,7 +73,7 @@
                     </div>
         
                     <div class="mb-8">
-                        <h2 class="text-xl font-semibold mb-4">Números vencedores</h2>
+                        <h2 class="text-lg sm:text-xl font-semibold mb-4">Números vencedores</h2>
                         <div class="flex gap-2">
                             <input type="number" min="1" max="60" class="w-12 h-12 border-2 border-gray-300 rounded text-center" maxlength="2" required>
                             <input type="number" min="1" max="60" class="w-12 h-12 border-2 border-gray-300 rounded text-center" maxlength="2" required>
@@ -88,7 +85,7 @@
                     </div>
         
                     <div>
-                        <h2 class="text-xl font-semibold mb-4">Meus jogos</h2>
+                        <h2 class="text-xl sm:text-xl font-semibold mb-4">Meus jogos</h2>
                         <div id="games" class="space-y-4">
                             <!-- Games will be added here -->
                         </div>
