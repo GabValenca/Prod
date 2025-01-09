@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sebrae Dashboard - by Vilti</title>
+    <meta name="description" content="Dashboard administrativo do Sebrae com acesso às unidades estaduais">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+    <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div id="app">
+        <header>
+            <nav class="fixed mx-auto py-4 px-5 w-full flex items-center justify-between bg-gray-800">
+                <div class="flex items-center space-x-4">
+                    <div class="w-25 h-10 flex items-center justify-center text-xs">
+                        <img src="file:///Users/gabrielvalenca/Downloads/imagens/vilti.svg" alt="Logo" class="w-full h-full">
+                    </div>
+                    <div class="w-25 h-10 flex items-center justify-center text-xs">
+                        <img src="file:///Users/gabrielvalenca/Downloads/imagens/Logo-Mindaware.png" alt="Logo" class="w-full h-full">
+                    </div>
+                </div>
+                <div class="flex items-center space-x-8">
+                    <button @click="logout" class="text-gray-200 hover:text-gray-900 mr-4">Sair</button>
+                </div>
+            </nav>
+        </header>
+
+        <main class="container mx-auto p-4 justify-center">
+            <div class="p-10 flex">
+                <!-- Primeira Coluna -->
+                <div class="relative w-1/2 h-[300px]">
+                    <img 
+                        src="file:///Users/gabrielvalenca/Downloads/imagens/Sebrae.svg" 
+                        alt="Logo" 
+                        class="fixed top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2 w-80 h-40"
+                    >
+                </div>
+            
+                <!-- Segunda Coluna -->
+                <div class="shadow bg-white rounded-lg w-1/2 px-2 py-2 mt-10">
+                    <!-- Caixa com a lista -->
+                    <div class="space-y-4 items-center">
+                        <template v-for="unit in sebraeUnits" :key="unit.id">
+                            <button 
+                                @click="selectUnit(unit)"
+                                :href="unit.url"
+                                target="_blank"
+                                class="w-full text-center px-4 py-2 rounded hover:bg-blue-50 text-blue-700"
+                                :class="{'bg-blue-50': selectedUnit === unit.id}">
+                                {{ unit.name }}
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <footer class="bg-gray-800 text-white text-center w-full py-4">
+        <p>&copy; 2024 Todos os direitos reservados.</p>
+    </footer>
+    
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+    data() {
+        return {
+            selectedUnit: null,
+            sebraeUnits: [
+                { id: 'sebrae', name: 'MailInspector Sebrae', url: 'https://dc01-sebrae-console.mlicloud.com/mailinspector/login.php' },
+                /* { id: 'ac', name: 'Sebrae-AC', url: 'https://www.sebraeac.com.br' },
+                { id: 'al', name: 'Sebrae-AL', url: 'https://www.sebraeal.com.br' },
+                { id: 'ap', name: 'Sebrae-AP', url: 'https://www.sebraeap.com.br' },
+                { id: 'am', name: 'Sebrae-AM', url: 'https://www.sebraeam.com.br' },
+                { id: 'ba', name: 'Sebrae-BA', url: 'https://www.sebraeba.com.br' },
+                { id: 'ce', name: 'Sebrae-CE', url: 'https://www.sebraece.com.br' },
+                { id: 'df', name: 'Sebrae-DF', url: 'https://www.sebraedf.com.br' },
+                { id: 'es', name: 'Sebrae-ES', url: 'https://www.sebraees.com.br' },
+                { id: 'go', name: 'Sebrae-GO', url: 'https://www.sebraego.com.br' },
+                { id: 'ma', name: 'Sebrae-MA', url: 'https://www.sebraema.com.br' },
+                { id: 'mt', name: 'Sebrae-MT', url: 'https://www.sebraemt.com.br' },
+                { id: 'ms', name: 'Sebrae-MS', url: 'https://www.sebraems.com.br' },
+                { id: 'mg', name: 'Sebrae-MG', url: 'https://www.sebraemg.com.br' },
+                { id: 'pa', name: 'Sebrae-PA', url: 'https://www.sebraepa.com.br' },
+                { id: 'pb', name: 'Sebrae-PB', url: 'https://www.sebraepb.com.br' },
+                { id: 'pr', name: 'Sebrae-PR', url: 'https://www.sebraepr.com.br' },
+                { id: 'pe', name: 'Sebrae-PE', url: 'https://www.sebraepe.com.br' },
+                { id: 'pi', name: 'Sebrae-PI', url: 'https://www.sebraepi.com.br' }, 
+                { id: 'rj', name: 'Sebrae-RJ', url: 'https://www.sebraerj.com.br' },
+                { id: 'rn', name: 'Sebrae-RN', url: 'https://www.sebraern.com.br' },*/
+                { id: 'rs', name: 'Sebrae-RS', url: 'https://www.sebraers.com.br' },
+                { id: 'ro', name: 'Sebrae-RO', url: 'https://www.sebraero.com.br' },
+                { id: 'rr', name: 'Sebrae-RR', url: 'https://www.sebraerr.com.br' },
+                { id: 'sc', name: 'Sebrae-SC', url: 'https://www.sebraesc.com.br' },
+                { id: 'sp', name: 'Sebrae-SP', url: 'https://www.sebraesp.com.br' },
+                { id: 'se', name: 'Sebrae-SE', url: 'https://www.sebraese.com.br' },
+                { id: 'to', name: 'Sebrae-TO', url: 'https://www.sebraeto.com.br' }
+            ]
+        };
+    },
+    methods: {
+        selectUnit(unit) {
+            this.selectedUnit = unit.id;
+            window.open(unit.url, '_blank'); // Abre em uma nova guia
+        },
+        logout() {
+            alert('Logout clicked');
+        }
+    }
+    }).mount('#app');
+
+    </script>
+</body>
+</html>
