@@ -58,7 +58,7 @@
         </main>
     </div>
     <footer class="bg-gray-800 text-white text-center w-full py-4">
-        <p>&copy; 2024 Todos os direitos reservados.</p>
+        <p>&copy; 2024 Todos os direitos reservados.</p><img src="https://raw.githubusercontent.com/GabValenca/Prod/refs/heads/main/Sebrae/imagens/vilti.svg" alt="Logo" class="w-full h-full">
     </footer>
     
     <script>
@@ -70,7 +70,7 @@
             selectedUnit: null,
             sebraeUnits: [
                 { id: 'sebrae', name: 'MailInspector Sebrae', url: 'https://dc01-sebrae-console.mlicloud.com/mailinspector/login.php' },
-                /* { id: 'ac', name: 'Sebrae-AC', url: 'https://www.sebraeac.com.br' },
+                { id: 'ac', name: 'Sebrae-AC', url: 'https://www.sebraeac.com.br' },
                 { id: 'al', name: 'Sebrae-AL', url: 'https://www.sebraeal.com.br' },
                 { id: 'ap', name: 'Sebrae-AP', url: 'https://www.sebraeap.com.br' },
                 { id: 'am', name: 'Sebrae-AM', url: 'https://www.sebraeam.com.br' },
@@ -89,7 +89,7 @@
                 { id: 'pe', name: 'Sebrae-PE', url: 'https://www.sebraepe.com.br' },
                 { id: 'pi', name: 'Sebrae-PI', url: 'https://www.sebraepi.com.br' }, 
                 { id: 'rj', name: 'Sebrae-RJ', url: 'https://www.sebraerj.com.br' },
-                { id: 'rn', name: 'Sebrae-RN', url: 'https://www.sebraern.com.br' },*/
+                { id: 'rn', name: 'Sebrae-RN', url: 'https://www.sebraern.com.br' },
                 { id: 'rs', name: 'Sebrae-RS', url: 'https://www.sebraers.com.br' },
                 { id: 'ro', name: 'Sebrae-RO', url: 'https://www.sebraero.com.br' },
                 { id: 'rr', name: 'Sebrae-RR', url: 'https://www.sebraerr.com.br' },
@@ -107,6 +107,7 @@
         },
         logout() {
             alert('Logout clicked');
+            window.close(); // Fecha a aba ou janela
         }
     }
     }).mount('#app');
