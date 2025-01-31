@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <title>Dashboard Financeiro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+</head>
+<style>
+    .flex {
+        display: flex;
+    }
+    .items-center {
+        align-items: center;
+    }
+    .justify-between {
+        justify-content: space-between;
+    }
+    .space-x-2 > * + * {
+        margin-left: 0.5rem;
+    }
+    .text-right {
+        text-align: right;
+    }
+    :root {
+        --theme-color: #1971c2; /* Cor padrão */
+    }
+
+    .body {
+        background-color: var(--theme-color);
+        transition: background-color 0.3s ease-in-out;
+    }
+    aside {
+        background-color: var(--theme-color);
+        color: white;
+        transition: background-color 0.3s ease-in-out; /* Adiciona uma transição suave */
+    }
+
+    aside a {
+        color: white;
+        text-decoration: none;
+    }
+
+    aside a:hover {
+        background-color: rgba(255, 255, 255, 0.1); /* Realce ao passar o mouse */
+    }
+</style>
+
+<body class="bg-gray-100">
+    <div id="app" class="min-h-screen flex">
+        <!-- Sidebar -->
+        <aside :class="{'w-64': isSidebarOpen, 'w-24': !isSidebarOpen}" class="overflow-hidden transition-all duration-300 p-6">
+            <div class="flex items-center gap-3 mb-8">
+                <button @click="toggleSidebar"  class="text-gray-600 hover:text-gray-900">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path v-if="isSidebarOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19l7-7-7-7"/>
+                    </svg>
+                </button>
+            </div>
+            <span v-if="isSidebarOpen">
+                <div class="flex items-center gap-3 mb-8">
+                    <img id="profilePhoto"  :src="profilePhoto" alt="Foto de Perfil" class="rounded-full w-20 h-20 object-cover mx-auto"/>
+                    <span id="username" class="text-white font-medium">Olá {{userName}}</span>
+                </div>
+            </span>
+            <span v-else="isSidebarOpen">
+                <div class="flex items-center gap-3 mb-8">
+                    <img id="profilePhoto"  :src="profilePhoto" alt="Foto de Perfil" class="rounded-full w-18 h-18 object-cover mx-auto"/>
+                </div>
+            </span>
+            <nav v-if="isSidebarOpen">
+                <ul class="space-y-2">
+                    <li><a href="#" class="text-white/80 hover:text-white block p-2 rounded" @click.prevent="currentPage = 'dashboard'; filterByCategory('Todos')">📊 Dashboard</a></li>
+                    <li><a href="#" class="text-white/80 hover:text-white block p-2 rounded" @click.prevent="currentPage = 'carteira'; filterByCategory('Todos');">💵 Carteira</a></li>
+                    <li><a href="#" class="text-white/80 hover:text-white block p-2 rounded" @click.prevent="currentPage = 'calculadora'; filterByCategory('Todos');">🧮 calculadora</a></li>
+                    <li><a href="#" class="text-white/80 hover:text-white block p-2 rounded" @click.prevent="currentPage = 'relatorios'; filterByCategory('Todos')">📄 Relatórios</a></li>
+                    <li><a href="#" class="text-white/80 hover:text-white block p-2 rounded" @click.prevent="currentPage = 'configurações'">⚙️ Configurações</a></li>
+                </ul>
+            </nav>
+            <nav v-else="isSidebarOpen">
+                <ul class="space-y-2">
+                    <li><a href="#" class="text-white/80 hover:text-white block p-2 rounded" @click.prevent="currentPage = 'dashboard'; filterByCategory('Todos')">📊</a></li>
+                    <li><a href="#" class="text-white/80 hover:text-white block p-2 rounded" @click.prevent="currentPage = 'carteira'; filterByCategory('Todos')">💵</a></li>
+                    <li><a href="#" class="text-white/80 hover:text-white block p-2 rounded" @click.prevent="currentPage = 'calculadora'; filterByCategory('Todos')">🧮</a></li>
+                    <li><a href="#" class="text-white/80 hover:text-white block p-2 rounded" @click.prevent="currentPage = 'relatorios'; filterByCategory('Todos')">📄</a></li>
+                    <li><a href="#" class="text-white/80 hover:text-white block p-2 rounded" @click.prevent="currentPage = 'configurações'">⚙️</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <main class="flex-1 p-8">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-medium">Total</h3>
+                            <button @click="toggleViewValues" class="px-4 hover:text-gray-900">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                            <!-- Variedade da Carteira -->
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-medium text-right">Variedade da Carteira</h2>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <p :key="index" class="text-3xl font-bold text-[#1971c2]">{{ formatCurrency(totalSum) }}</p>
+                        <div class="mt-4">
+                            <!-- Lista de categorias -->
+                            <div class="mt-4">
+                                <button @click="filterByCategory('Todos')" class="bg-blue-500 text-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded m-[1%]">Todos</button><br/>
+                                <button 
+                                    v-for="(total, category) in categoryTotals" 
+                                    :key="category" 
+                                    @click="filterByCategory(category)" 
+                                    class="bg-blue-500 text-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded m-[1%]">
+                                    {{ category }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <!-- Limite opcional ao formato JSON --> 
+                        <input type="file" @change="loadFromFile" class="text-white px-4 py-2 rounded" accept=".json">
+                    </div>
+                    
+                </div>
+                <!-- Dashboard Content -->
+                <div v-if="currentPage === 'dashboard'" id="app" class="container mx-auto px-4">
+                    <div class="p-2 m-0 flex flex-col justify-center items-center">
+                        <h1 class="text-4xl font-bold">{{currentPage}}</h1>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <!-- variedade Card -->
+                        <div class="bg-white rounded-xl shadow-sm p-4">
+                            <h3 class="text-lg font-medium mb-4">Variação Portifólio</h3>
+                            <ul class="mt-4">
+                                <li v-for="(total, category) in categoryTotals" :key="category" class="text-gray-700">
+                                    {{ category }}: {{ formatCurrency(total) }}
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- DY Card -->
+                        <div class="bg-white rounded-xl shadow-sm p-4">
+                            <h3 class="text-lg font-medium mb-4">DY. Último</h3>
+                            <canvas id="dyChart"></canvas>
+                        </div>
+                        
+                        <!-- PVP Card -->
+                        <div class="bg-white rounded-xl shadow-sm p-4">
+                            <h3 class="text-lg font-medium mb-4">PVP</h3>
+                            <canvas id="pvpChart"></canvas>
+                        </div>
+
+                        <!-- Relação desconto Card -->
+                        <div class="bg-white rounded-xl shadow-sm p-4">
+                            <h3 class="text-lg font-medium mb-4">Relação desconto</h3>
+                            <canvas id="descontoChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
+                        <!-- Variedade Carteira -->
+                        <div class="bg-white rounded-xl shadow-sm p-4">
+                            <h3 class="text-lg font-medium mb-4">Variedade Carteira</h3>
+                            <canvas id="portfolioChart"></canvas>
+                        </div>
+
+                        <!-- Distribuição -->
+                        <div class="bg-white rounded-xl shadow-sm p-4">
+                            <h3 class="text-lg font-medium mb-4">Distribuição</h3>
+                            <canvas id="detailedChart"></canvas>
+                        </div>
+                    
+                        <!-- Bar Chart -->
+                        <div class="bg-white rounded-xl shadow-sm p-4">
+                            <div class="h-80">
+                                <h3 class="text-lg font-medium mb-4">Distribuição</h3>
+                                <canvas class="position-center w-full h-full" id="barChart"></canvas>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carteira Content -->
+                <div v-if="currentPage === 'carteira'" id="app" class="container mx-auto px-4">
+                    <div class="p-2 m-0 flex flex-col justify-center items-center">
+                        <h1 class="text-4xl font-bold">{{currentPage}}</h1>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-4">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <div class="mt-4">
+                                        <button @click="saveToFile" class="bg-blue-500 text-white px-4 py-2 rounded">Salvar Dados</button>
+                                    </div>
+                                    <tr class="border-b">
+                                        <th class="text-left py-3 px-4">Nome</th>
+                                        <th class="text-left py-3 px-4">Categoria</th>
+                                        <th class="text-left py-3 px-4">Qtd</th>
+                                        <th class="text-left py-3 px-4"></th>
+                                        <th class="text-left py-3 px-4">Valor Médio</th>
+                                        <th class="text-left py-3 px-4">Valor Atual</th>
+                                        <th class="text-left py-3 px-4">Diferença</th>
+                                        <th class="text-left py-3 px-4">PVP</th>
+                                        <th class="text-left py-3 px-4">Dividendos</th>
+                                        <th class="text-left py-3 px-4">Dy.Prévio</th>
+                                        <th class="text-left py-3 px-4">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(stock, index) in filteredStocks" :key="index" class="stock-row border-b">
+                                        <td class="py-3 px-4">
+                                            <input type="text" class="w-20 h-12 border-2 border-gray-300 rounded text-center" v-model="stock.name" placeholder="Nome">
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            <input type="text" class="w-20 h-12 border-2 border-gray-300 rounded text-center" v-model="stock.category" placeholder="Categoria">
+                                        </td>
+                                        <td class="py-3 px-4">{{ stock.quantity }}</td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex gap-2">
+                                                <button @click="addStock(index)" class="btn-action w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600">+</button>
+                                                <button @click="removeStock(index)" class="btn-action w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600">-</button>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            <input type="number" class="w-20 h-12 border-2 border-gray-300 rounded text-center" v-model.number="stock.averagePrice" @input="updateTotal(index)" placeholder="Média">
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            <input type="number" class="w-20 h-12 border-2 border-gray-300 rounded text-center" v-model.number="stock.price" @input="updateDifference(index)" placeholder="Atual">
+                                        </td>
+                                        <td class="py-3 px-4" :class="{'text-green-600': stock.difference > 0, 'text-red-600': stock.difference < 0}">
+                                            {{ stock.difference.toFixed(2) }}%
+                                        </td>
+                                        <td class="py-3 px-4">{{ stock.pvp }}</td>
+                                        <td class="py-3 px-4">{{ stock.dividends }}% a.a</td>
+                                        <td class="py-3 px-4">{{ formatCurrency(stock.dyPrevious) }}</td>
+                                        <td class="py-3 px-4">{{ formatCurrency(stock.total) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <br>
+                        <div class="flex items-center justify-between">
+                            <button @click="addNewRow" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 position-left">
+                                Adicionar
+                            </button>
+                            <button @click="removeNewRow" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 position-left">
+                                Remover
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calculadora Content -->
+                <div v-if="currentPage === 'calculadora'" id="app" class="container mx-auto px-4">
+                    <div class="p-2 m-0 flex flex-col justify-center items-center">
+                        <h1 class="text-4xl font-bold">{{currentPage}}</h1>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-4">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <div class="filters flex items-center justify-end">
+                                        <!-- Valor a aplicar -->
+                                         <div>
+                                            <input type="number" v-model="valueX" placeholder="Valor a aplicar" class="border rounded px-2 py-1 mt-2">
+                                            <div class="py-3 px-4" :class="{'text-green-600': totalNewQuantitySum > 0, 'text-red-600': totalNewQuantitySum > valueX}">Calculadora: {{ formatCurrency(totalNewQuantitySum) }}</td>
+                                         </div>
+                                    </div>
+                                    <tr class="border-b">
+                                        <th class="text-left py-3 px-4">Nome</th>
+                                        <th class="text-left py-3 px-4">Categoria</th>
+                                        <th class="text-left py-3 px-4">Valor<br/>Atual</th>
+                                        <th class="text-left py-3 px-4">Total</th>
+                                        <th class="text-left py-3 px-4">
+                                            <button @click="setSortColumn('difference')" class="underline">Diferença</button>
+                                        </th>
+                                        <th class="text-left py-3 px-4">
+                                            <button @click="setSortColumn('pvp')" class="underline">PVP</button>
+                                        </th>
+                                        <th class="text-left py-3 px-4">
+                                            <button @click="setSortColumn('dividends')" class="underline">Dividendos</button>
+                                        </th>
+                                        <th class="text-left py-3 px-4">
+                                            <button @click="setSortColumn('dyPrevious')" class="underline">Dy.Prévio</button>
+                                        </th>
+                                        <th class="text-left py-3 px-4">Nova<br/>Quantidade</th>
+                                        <th class="text-left py-3 px-4"></th>
+                                        <th class="text-left py-3 px-4">Novo<br/>Total</th>
+                                    </tr>
+                                </thead>
+                               
+                                
+                                <tbody>
+                                    <tr v-for="(stock, index) in filteredStocks" :key="index" class="stock-row border-b">
+                                        <td class="py-3 px-4">{{ stock.name }}</td>
+                                        <td class="py-3 px-4">{{ stock.category }}</td>
+                                        <td class="py-3 px-4">{{ formatCurrency(stock.price) }}</td>
+                                        <td class="py-3 px-4">{{ formatCurrency(stock.total) }}</td>
+                                        <td class="py-3 px-4" :class="{'text-green-600': stock.difference > 0, 'text-red-600': stock.difference < 0}">
+                                            {{ stock.difference.toFixed(2) }}%
+                                        </td>
+                                        <td class="py-3 px-4">{{ stock.pvp }}</td>
+                                        <td class="py-3 px-4">{{ stock.dividends }}% a.a</td>
+                                        <td class="py-3 px-4">{{ formatCurrency(stock.dyPrevious) }}</td>
+                                        <td class="py-3 px-4">{{ stock.newQuantity }}</td>
+                                        </td>         
+                                        <td class="py-3 px-4">
+                                            <div class="flex gap-2">
+                                                <button @click="addCalculadora(index)" class="btn-action w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600">+</button>
+                                                <button @click="removeCalculadora(index)" class="btn-action w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600">-</button>
+                                            </div>
+                                        </td>                               
+                                        <td class="py-3 px-4">{{ formatCurrency(stock.newQuantityTotal) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Relatorios Content -->
+                <div v-if="currentPage === 'relatorios'" id="app" class="container mx-auto px-4">
+                    <div class="p-2 m-0 flex flex-col justify-center items-center">
+                        <h1 class="text-4xl font-bold">{{currentPage}}</h1>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-4 min-h-screen flex flex-col justify-center items-center">
+                        <div class="text-center">
+                            <strong><h1 class="text-4xl font-bold">404</h1></strong>
+                            <h2 class="text-lg text-gray-500">Essa página ainda não foi configurada</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuracao Content -->
+                <div v-if="currentPage === 'configurações'" id="app" class="container mx-auto px-4">
+                    <div class="p-2 m-0 flex flex-col justify-center items-center">
+                        <h1 class="text-4xl font-bold">{{currentPage}}</h1>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col items-center">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 m-16">
+                            <!-- Data -->
+                            <div class="container bg-white rounded-xl items-center p-4">
+                                <div class="flex items-center justify-between">
+                                    <input type="text" placeholder="Digite seu nome" class="border rounded p-4 w-full">
+                                    <button @click="saveName" class="bg-blue-500 text-white rounded hover:bg-blue-600 px-10 py-1 m-2"> Salvar Nome </button>
+                                </div>
+                                <!-- Seletor de Cor para o Tema -->
+                                 <div class="mt-4">
+                                    <div class="flex items-center justify-between">
+                                        <label class="block font-semibold mb-1">Escolha a cor do tema:</label>
+                                        <input type="color" class="w-12 h-12 cursor-pointer border rounded">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Profile Picture -->
+                            <div class="bg-white rounded-xl p-4">
+                                <div class="mb-4 text-center">
+                                    <img :src="profilePhoto" alt="Foto de Perfil" class="rounded-full w-32 h-32 object-cover">
+                                    </div>
+                                    <input type="file" @change="handlePhotoUpload" accept="image/png, image/jpeg, image/jpg" class="mb-4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer>
+                    <p class="font-medium py-6 flex items-center justify-center"><a target="_blank" rel="noopener noreferrer" href="https://www.blackparrot.com.br/">Desenvolvido por BlackParrot®</a></p> 
+                </footer>
+            </main>
+        </div>
+
+    <script>
+        const { createApp } = Vue;
+    
+        createApp({
+            data() {
+                return {
+                    selectedPVP: { min: 0, max: 2 },
+                    stocks: [], // Dados brutos
+                    filteredStocks: [], // Dados filtrados por categoria e PVP
+                    newQuantityMap: {}, // Quantidade atualizada para cada item
+                    charts: {}, // Gráficos
+                    currentPage: 'dashboard', // Página inicial
+                    isSidebarOpen: false, // Controle da sidebar
+                    apiUrl: 'http://localhost:5000/data', // URL do backend para buscar dados
+                    selectedCategory: 'Todos', // Categoria selecionada para filtragem
+                    selectedPVP: 2, // Valor inicial do slider de PVP
+                    valueX: 0, // Valor adicionalv
+                    userName: localStorage.getItem('userName') || 'Olá BlackParrot',
+                    profilePhoto: localStorage.getItem('profilePhoto') || 'profile.jpg',
+                    sortColumn: '', // Coluna para ordenação
+                    sortAscending: true, // Direção da ordenação
+                    themeColor: localStorage.getItem("themeColor") || "#1971c2", // Cor padrão
+                };
+            },
+            watch: {
+                themeColor(newColor) {
+                document.documentElement.style.setProperty("--theme-color", newColor);
+                localStorage.setItem("themeColor", newColor);
+                },
+            },
+            computed: {
+                totalSum() {
+                    // Calcula a soma de todos os valores de stock.total
+                    return this.filteredStocks.reduce((sum, stock) => sum + (stock.total || 0), 0);
+                },
+                totalSumAll() {
+                    // Calcula a soma de todos os valores de stock.total
+                    return this.reduce((sum, stock) => sum + (stock.total || 0), 0);
+                },
+                // Retorna categorias únicas
+                uniqueCategories() {
+                    return [...new Set(this.stocks.map(stock => stock.category))];
+                },
+                // Retorna o valor máximo de PVP para configurar o slider
+                maxPVP() {
+                    return Math.max(...this.stocks.map(stock => stock.pvp));
+                },
+                // Filtra os itens com base nos filtros selecionados
+                filteredStocks() {
+                    return this.stocks.filter(stock => {
+                        const categoryMatch = this.selectedCategory === "Todos" || stock.category === this.selectedCategory;
+                        const pvpMatch = stock.pvp <= this.selectedPVP;
+                        return categoryMatch && pvpMatch;
+                    });
+                },
+                categoryTotals() {
+                    // Agrupa os valores de stock.total por categoria
+                    const totals = {};
+                    this.stocks.forEach(stock => {
+                        if (!totals[stock.category]) {
+                            totals[stock.category] = 0;
+                        }
+                        totals[stock.category] += stock.total || 0;
+                    });
+                    return totals;
+                },
+                totalNewQuantitySum() {                    // Soma de todos os newQuantityTotal
+                    return this.stocks.reduce((sum, stock) => sum + stock.newQuantityTotal, 0);
+                },
+            },
+            methods: {
+                toggleSidebar() {
+                    this.isSidebarOpen = !this.isSidebarOpen;
+                },
+                toggleViewValues() {
+                    this.showValues = !this.showValues; // Alterna entre exibir e ocultar valores
+                },
+                loadDefaultData() {
+                    // Carrega os dados do arquivo "dados.json"
+                    fetch('./dados.json')
+                        .then(response => response.json())
+                        .then(data => {
+                            this.stocks = data;
+                            this.filteredStocks = data; // Inicialmente sem filtros
+                            this.initCharts();
+                        })
+                        .catch(error => console.error('Erro ao carregar os dados:', error));
+                },
+                loadFromFile(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const fileContent = e.target.result; // Conteúdo do arquivo em base64
+                            localStorage.setItem("uploadedFileContent", fileContent); // Salva o conteúdo no LocalStorage
+                            this.processFileContent(fileContent); // Processa o conteúdo carregado
+                            alert("Arquivo carregado e salvo com sucesso!");
+                        };
+                        reader.readAsText(file); // Lê o arquivo como texto
+                    }
+                },
+                processFileContent(content) {
+                    // Processa o conteúdo do arquivo
+                    try {
+                        const data = JSON.parse(content); // Tenta parsear como JSON
+                        this.stocks = data; // Atualiza a lista de stocks ou outra lógica
+                    } catch (error) {
+                        console.error("Erro ao processar o arquivo:", error);
+                        alert("O arquivo selecionado não é válido.");
+                    }
+                },
+                loadFileFromLocalStorage() {
+                    const savedContent = localStorage.getItem("uploadedFileContent");
+                    if (savedContent) {
+                        this.processFileContent(savedContent);
+                    }
+                },
+                filterByCategory(category) {
+                    this.selectedCategory = category;
+                    this.filteredStocks = category === 'Todos'
+                        ? this.stocks
+                        : this.stocks.filter(stock => stock.category === category);
+                    this.initCharts(); // Atualiza os gráficos com os dados filtrados
+                },
+                filteredStocks() {
+                    //return this.stocks.filter(stock => {
+                    //    const categoryMatch = this.selectedCategory === 'Todos' || stock.category === this.selectedCategory;
+                    //    const pvpMatch = this.selectedPVP === null || stock.pvp <= this.selectedPVP;
+                    //    return categoryMatch && pvpMatch;
+                    //});
+                    // Filtra os estoques com base no PVP selecionado
+                    let filtered = this.stocks.filter((stock) => stock.pvp <= this.selectedPVP);
+
+                    // Ordena os resultados com base na coluna selecionada
+                    if (this.sortColumn) {
+                    filtered.sort((a, b) => {
+                        const valueA = a[this.sortColumn];
+                        const valueB = b[this.sortColumn];
+
+                        if (valueA < valueB) return this.sortAscending ? -1 : 1;
+                        if (valueA > valueB) return this.sortAscending ? 1 : -1;
+                        return 0;
+                    });
+                    }
+
+                return filtered;
+                },
+                applyFilters() {
+                    this.filteredStocks = this.stocks.filter(stock => {
+                        const categoryMatch = this.selectedCategory === "Todos" || stock.category === this.selectedCategory;
+                        const pvpMatch = parseFloat(stock.pvp) >= min && parseFloat(stock.pvp) <= max;
+                        return categoryMatch && pvpMatch;
+                    });
+
+
+                    this.sortFilteredStocks(); // Reordena após aplicar filtros
+                },
+                setSortColumn(column) {
+                    if (this.sortColumn === column) {
+                        this.sortAscending = !this.sortAscending;
+                    } else {
+                        this.sortColumn = column;
+                        this.sortAscending = true;
+                    }
+                    this.sortFilteredStocks();
+                },
+                sortFilteredStocks() {
+                    this.filteredStocks.sort((a, b) => {
+                        const valueA = a[this.sortColumn] || 0;
+                        const valueB = b[this.sortColumn] || 0;
+
+                        return this.sortAscending ? valueA - valueB : valueB - valueA;
+                    });
+                },
+                calculateTotal(stock) {
+                    const newQuantity = this.newQuantityMap[stock.name] || 0;
+                    return newQuantity * stock.price;
+                },
+                calculateDifference(stock) {
+                    const newQuantity = this.newQuantityMap[stock.name] || 0;
+                    return newQuantity - stock.quantity;
+                },
+                formatCurrency(value) {
+                    // Formata o valor como moeda BRL
+                    return new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                    }).format(value);
+                },
+                addStock(index) {
+                    this.stocks[index].quantity++;
+                    this.updateTotal(index);
+                },
+                removeStock(index) {
+                    if (this.stocks[index].quantity > 0) {
+                        this.stocks[index].quantity--;
+                        this.updateTotal(index);
+                    }
+                },
+                updateTotal(index) {
+                    this.stocks[index].total = this.stocks[index].quantity * this.stocks[index].price;
+                },
+                addCalculadora(index) {
+                    this.stocks[index].newQuantity++;
+                    this.updateCalculadora(index);
+                },
+                removeCalculadora(index) {
+                    if (this.stocks[index].newQuantity > 0) {
+                        this.stocks[index].newQuantity--;
+                        this.updateCalculadora(index);
+                    }
+                },
+                updateCalculadora(index) {
+                    this.stocks[index].newQuantityTotal = this.stocks[index].newQuantity * this.stocks[index].price;
+                },
+                updateDifference(index) {
+                    if (this.stocks[index].averagePrice !== 0) {
+                        this.stocks[index].difference =
+                            ((this.stocks[index].price - this.stocks[index].averagePrice) /
+                                this.stocks[index].averagePrice) *
+                            100;
+                    } else {
+                        this.stocks[index].difference = 0;
+                    }
+                },
+                addNewRow() {
+                    this.stocks.push({
+                        name: "",
+                        quantity: 0,
+                        averagePrice: 0,
+                        pvp: 0,
+                        dividends: 0,
+                        dyPrevious: 0,
+                        price: 0,
+                        difference: 0,
+                        total: 0,
+                        category: "Ação", // Corrigido para string válida
+                        newQuantity: 0,
+                        newQuantityTotal: 0
+                    });
+                },
+                removeNewRow() {
+                    if (this.stocks.length > 0) {
+                        this.stocks.pop();
+                    } else {
+                        console.warn("Não há linhas para excluir.");
+                    }
+                },
+                saveToFile() {
+                    // Cria um blob com os dados JSON
+                    const dataStr = JSON.stringify(this.stocks, null, 2);
+                    const blob = new Blob([dataStr], { type: 'application/json' });
+    
+                    // Cria um link para download
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'dados.json';
+                    a.click();
+                    URL.revokeObjectURL(a.href); // Limpa o objeto URL
+                },
+                initCharts() {
+                    // Destrói os gráficos existentes antes de recriá-los
+                    Object.values(this.charts).forEach(chart => chart.destroy());
+                    this.charts = {};
+    
+                    // Dados para os gráficos
+                    const labels = this.filteredStocks.map(stock => stock.name);
+                    const totals = this.filteredStocks.map(stock => stock.total);
+                    const pvpValues = this.filteredStocks.map(stock => stock.pvp);
+                    const dyValues = this.filteredStocks.map(stock => stock.dividends);
+                    const categorys = this.filteredStocks.map(stock => stock.category);
+                    const Quantitys = this.filteredStocks.map(stock => stock.quantity);
+                    const averagePrices = this.filteredStocks.map(stock => stock.averagePrice);
+                    const prices = this.filteredStocks.map(stock => stock.price);
+                    const differences = this.filteredStocks.map(stock => stock.difference);
+                    const dysPrevious = this.filteredStocks.map(stock => stock.dyPrevious);
+                    const sortedData = labels.map((label, index) => ({ label, value: totals[index] }))
+                            .sort((a, b) => a.value - b.value);
+                    const sortedLabels = sortedData.map(item => item.label);
+                    const sortedPvpValues = sortedData.map(item => item.value);
+    
+                    // Gráfico de Pizza (Variedade da Carteira)
+                    const portfolioCanvas = document.getElementById('portfolioChart');
+                    if (portfolioCanvas) {
+                        const categoryLabels = Object.keys(this.categoryTotals);
+                        const categoryData = Object.values(this.categoryTotals);
+                        this.charts.portfolio = new Chart(portfolioCanvas, {
+                            type: 'doughnut',
+                            data: {
+                                labels: categoryLabels,
+                                datasets: [{
+                                    data: categoryData,
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { position: 'bottom' }
+                                }
+                            }
+                        });
+                    }
+    
+                    // Gráfico de DY
+                    const dyCanvas = document.getElementById('dyChart');
+                    if (dyCanvas) {
+                        this.charts.dy = new Chart(dyCanvas, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    data: dyValues,
+                                    backgroundColor: '#1971c2'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { display: false }
+                                }
+                            }
+                        });
+                    }
+    
+                    // Gráfico de PVP
+                    const pvpCanvas = document.getElementById('pvpChart');
+                    if (pvpCanvas) {
+                        this.charts.pvp = new Chart(pvpCanvas, {
+                            type: 'bar',
+                            data: {
+                                labels: sortedLabels,
+                                datasets: [{
+                                    data: pvpValues,
+                                    backgroundColor: '#1971c2'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { display: false }
+                                }
+                            }
+                        });
+                    }
+
+                    // Gráfico de Desconto
+                    const descontoChart = document.getElementById('descontoChart');
+                    if (descontoChart) {
+                        this.charts.desconto = new Chart(descontoChart, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    data: differences,
+                                    backgroundColor: '#1971c2'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { display: false }
+                                }
+                            }
+                        });
+                    }
+    
+                    // Gráfico de Distribuição Total
+                    const detailedChart = document.getElementById('detailedChart');
+                    if (detailedChart) {
+                        this.charts.detailed = new Chart(detailedChart, {
+                            type: 'pie',
+                            data: {
+                                labels: sortedLabels,
+                                datasets: [{
+                                    data: sortedPvpValues,
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { position: 'bottom' }
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Gráfico de Distribuição Total
+                    const barChart = document.getElementById('barChart');
+                    if (barChart) {
+                        this.charts.bar = new Chart(barChart, {
+                            type: 'bar',
+                            data: {
+                                labels: sortedLabels,
+                                datasets: [{
+                                    data: sortedPvpValues,
+                                    backgroundColor: ['#4299e1', '#ed8936', '#48bb78', '#f6ad55']
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                indexAxis: 'y',
+                                plugins: {
+                                    legend: { display: false }
+                                }
+                            }
+                        });
+                    }
+                },
+                refreshData() {
+                    // Se houver um arquivo carregado, carregue novamente
+                    if (this.loadedFile) {
+                        const fileReader = new FileReader();
+                        fileReader.onload = (event) => {
+                            try {
+                                const data = JSON.parse(event.target.result);
+                                this.stocks = data.stocks || []; // Atualize os dados conforme o arquivo
+                            } catch (error) {
+                                alert("Erro ao carregar o arquivo. Verifique o formato.");
+                            }
+                        };
+                        fileReader.readAsText(this.loadedFile);
+                    } else {
+                        alert("Nenhum arquivo carregado previamente!");
+                    }
+                },
+                saveName() {
+                    localStorage.setItem('userName', this.userName);
+                    alert('Nome atualizado com sucesso!');
+                },
+                handlePhotoUpload(event) {
+                    const file = event.target.files[0];
+                    if (file && (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'image/jpg')) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                        this.profilePhoto = e.target.result; // Carrega a imagem para exibição.
+                        localStorage.setItem('profilePhoto', e.target.result); // Salva a imagem em base64.
+                        alert('Foto de perfil atualizada com sucesso!');
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        alert('Formato de arquivo inválido. Por favor, envie PNG, JPG ou JPEG.');
+                    }
+                },
+                updateThemeColor() {
+                    document.documentElement.style.setProperty("--theme-color", this.themeColor);
+                    localStorage.setItem("themeColor", this.themeColor);
+                }
+            },
+            mounted() {
+                //this.loadDefaultData();
+                //setInterval(() => {
+                //    this.loadDefaultData(); // Recarrega os dados a cada 5 minutos
+                //}, 5 * 60 * 1000); // 5 minutos em milissegundos
+                this.loadFileFromLocalStorage(); // Carrega o arquivo salvo no LocalStorage
+                // Define a cor inicial na variável CSS
+                document.documentElement.style.setProperty("--theme-color", this.themeColor);
+            }
+        }).mount('#app');
+        // Carregar dados salvos do localStorage
+        window.onload = () => {
+        const savedName = localStorage.getItem('username');
+        const savedPic = localStorage.getItem('profilePic');
+
+        if (savedName) {
+            document.getElementById('username').innerText = `Olá, ${savedName}`;
+            document.getElementById('name').value = savedName;
+        }
+
+        if (savedPic) {
+            document.getElementById('profile-pic').src = savedPic;
+        }
+        };
+        // Salvar alterações
+        document.getElementById('save-btn').addEventListener('click', () => {
+        const nameInput = document.getElementById('name').value;
+        const fileInput = document.getElementById('profile-pic-upload').files[0];
+
+        if (nameInput) {
+            localStorage.setItem('username', nameInput);
+            document.getElementById('username').innerText = `Olá, ${nameInput}`;
+        }
+
+        if (fileInput) {
+            const reader = new FileReader();
+
+            reader.onload = (event) => {
+            const imageData = event.target.result;
+            localStorage.setItem('profilePic', imageData);
+            document.getElementById('profile-pic').src = imageData;
+            };
+
+            reader.readAsDataURL(fileInput);
+        }
+
+        alert('Alterações salvas com sucesso!');
+        });
+    </script>   
+</body>
+</html>
