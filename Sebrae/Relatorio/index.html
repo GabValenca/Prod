@@ -139,7 +139,9 @@
 
           // Página inicial: título centralizado com fonte bold tamanho 50
           pdf.setFont("helvetica", "bold");
-          pdf.setFontSize(40);
+          pdf.setFontSize(35);
+          pdf.text(`RELATÓRIO MENSAL`, pageWidth / 2, pageHeight / 2 - 60, { align: "center" });
+          pdf.text(`DE ANÁLISE`, pageWidth / 2, pageHeight / 2 - 40, { align: "center" });
           pdf.text(titleInput, pageWidth / 2, pageHeight / 2 - 20, { align: "center" });
           // Redefine a fonte para o restante do documento
           pdf.setFont("helvetica", "normal");
@@ -186,9 +188,9 @@
 
           // Rodapé e informações extras na primeira página
           pdf.text(`\t\tCliente: \t  ${clientName}`, 8, pageHeight - 50);
-          pdf.text(`\t\tData: \t     ${currentDate}`, 8, pageHeight - 45);
+          pdf.text(`\t\tData: \t      ${currentDate}`, 8, pageHeight - 45);
           pdf.text(`\t\tProjeto: \t  ${project}`, 8, pageHeight - 40);
-          pdf.text(`\t\tResponsável: ${owner}`, 8, pageHeight - 35);
+          pdf.text(`\t\tResponsável:  ${owner}`, 8, pageHeight - 35);
           pdf.text(footer, 8, pageHeight - 10);
           pdf.text(`https://${footer}.com.br`, 8, pageHeight - 6);
           pdf.text("1", pageWidth - 10, pageHeight - 5);
@@ -570,7 +572,7 @@
             clientName: "SEBRAE",
             project: "SEBRAE",
             owner: "Gabriel Souza Valença",
-            title: "RELATÓRIO MENSAL DE ANÁLISE",
+            title: "MAILINSPECTOR (HSC)",
             footer: "Vilti"
           };
         }
