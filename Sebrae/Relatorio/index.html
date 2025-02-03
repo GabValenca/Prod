@@ -102,7 +102,9 @@
           .replace(/VÃrus/g, "Vírus")
           .replace(/ApariÃ§Ã£o/g, "Aparição")
           .replace(/Email Impostor/g, "Impostor")
-          .replace(/'/g, "");
+          .replace(/'/g, "")
+          .replace(/DLP / /g, "Total")
+          .replace(/Auditoria/g, "")
       }
 
       // Paleta de cores para as categorias
@@ -565,7 +567,7 @@
             project: "SEBRAE",
             owner: "Gabriel Souza Valença",
             title: "MAILINSPECTOR (HSC)",
-            footer: "VILTI "
+            footer: "VILTI"
           };
         }
       });
