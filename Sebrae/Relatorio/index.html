@@ -87,6 +87,7 @@
       // Função para corrigir caracteres com problemas de encoding
       function fixEncoding(str) {
         return str
+          .replace(/Quantidade/g, "Qtd.")
           .replace(/Conte√É¬∫do/g, "Conteúdo")
           .replace(/Destinat√É¬°rios/g, "Destinatários")
           .replace(/DestinatÃ¡rios/g, "Destinatários")
@@ -97,7 +98,10 @@
           .replace(/Prov√É¬°vel/g, "Provável")
           .replace(/V√É¬≠rus/g, "Vírus")
           .replace(/VÃ-rus/g, "Vírus")
+          .replace(/Vã-rus/g, "Vírus")
+          .replace(/VÃrus/g, "Vírus")
           .replace(/ApariÃ§Ã£o/g, "Aparição")
+          .replace(/Email Impostor/g, "Impostor")
           .replace(/'/g, "");
       }
 
@@ -229,35 +233,6 @@
         pdf.text(introText1, 20, 50, { maxWidth: pageWidth - 40 });
         pdf.text("2", pageWidth - 10, pageHeight - 5);
 
-        // Página 3: Introdução sobre a ferramenta MailInspector
-        pdf.addPage();
-        pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(20);
-        pdf.text("MailInspector", pageWidth / 2, 30, { align: "center" });
-        pdf.setFont("helvetica", "normal");
-        pdf.setFontSize(12);
-        const introText2 = `3.RESULTADOS DA ANÁLISE\r
-        
-        3.1. Autenticação
-        \tSPF: [Indicar se o SPF está configurado corretamente ou se há permissões excessivas]
-        \tDKIM: [Indicar se a assinatura DKIM foi validada corretamente]
-        \tDMARC: [Indicar a política configurada (p=none, p=quarantine, p=reject) e se houve falhas]
-        3.2. Análise de Cabeçalhos
-        \t[Descrever eventuais discrepâncias nos cabeçalhos analisados]
-        \t[Indicar se há manipulações ou redirecionamentos suspeitos]
-        3.3. Reputação do Remetente e Domínio
-        \tIP do servidor de envio: [Indicar se possui boa reputação ou se está listado em alguma blacklist]
-        \tDomínio remetente: [Avaliar a confiabilidade do domínio de envio]
-        3.4. Detecção de Ameaças
-        \tPhishing: [Indicar se foram encontrados indícios de tentativa de phishing]
-        \tSpam: [Descrever se os e-mails analisados foram classificados como spam por filtros de terceiros]
-        \tMalware: [Indicar se foram encontrados anexos ou links suspeitos]
-
-
-        `;
-        pdf.text(introText2, 20, 50, { maxWidth: pageWidth - 40 });
-        pdf.text("3", pageWidth - 10, pageHeight - 5);
-
           // Processamento do arquivo "dados" (TXT ou Imagem)
           if (dadosFile) {
             if (dadosFile.type === "text/plain") {
@@ -318,14 +293,13 @@
                     { title: "Top E-mail Relays", expectedColumns: 2, type: "line" },
                     { title: "Top Remetentes por Quantidade (por Email)", expectedColumns: 13, type: "bar" },
                     { title: "Top Remetentes por Quantidade (por Domínio)", expectedColumns: 13, type: "bar" },
-                    { title: "Top Remetentes por Volume (por Email)", expectedColumns: 3, type: "bar" },
+                    { title: "Top Destinatário por Volume (por Email)", expectedColumns: 3, type: "bar" },
                     { title: "Top Remetentes por Volume", expectedColumns: 3, type: "bar" },
-                    { title: "Top Destinatário por Quantidade (por Domínio )", expectedColumns: 3, type: "bar" },
+                    { title: "Top Destinatário por Quantidade (por Domínio)", expectedColumns: 3, type: "bar" },
                     { title: "Top Destinatário por Quantidade (por Email)", expectedColumns: 3, type: "bar" },
                     { title: "Top Destinatário por Volume (por Domínio)", expectedColumns: 2, type: "doughnut" },
                     { title: "Top Destinatário por Volume (por Email)", expectedColumns: 2, type: "bar" },
                     { title: "Principais Remetentes de SPAM (por Domínio)", expectedColumns: 2, type: "doughnut" },
-                    { title: "Principais Remetentes de SPAM (por Email)", expectedColumns: 2, type: "doughnut" },
                     { title: "Relatório de Vírus", expectedColumns: 3, type: "doughnut" }
                   ];
 
@@ -349,6 +323,20 @@
                       if (segment[j].trim() === "") continue;
                       const rowCells = segment[j].split(";").map(cell => fixEncoding(cell.trim()));
                       tableData.push(rowCells);
+                    }
+
+                    // Se for o primeiro gráfico ("Volume de Mensagens por Data"), adiciona a linha de totais.
+                    if (i === 0) {
+                      const totals = [];
+                      totals[0] = "Total";
+                      for (let col = 1; col < headerCells.length; col++) {
+                        let sum = 0;
+                        tableData.forEach(row => {
+                          sum += Number(row[col]) || 0;
+                        });
+                        totals[col] = sum;
+                      }
+                      tableData.push(totals);
                     }
 
                     let chartData = {};
@@ -462,7 +450,7 @@
                               // Adiciona uma nova página para o gráfico e a tabela
                               pdf.addPage();
                               // Insere o gráfico
-                              pdf.addImage(imageURL, "PNG", 15, 20, 180, 100);
+                              pdf.addImage(imageURL, "PNG", 15, 25, 180, 100);
                               // Insere a tabela com todas as linhas de dados do segmento
                               pdf.autoTable({
                                 startY: 130,
@@ -471,7 +459,8 @@
                                 theme: "grid",
                                 styles: { fontSize: 5 }
                               });
-                              pdf.text(introText2, 20, 50, { maxWidth: pageWidth - 40 });
+                              pdf.text(footer, 8, pageHeight - 10);
+                              pdf.text(`https://${footer}.com.br`, 8, pageHeight - 6);  
                             } catch (err) {
                               console.error("Erro ao converter gráfico em imagem ou gerar tabela:", err);
                             }
@@ -556,6 +545,8 @@
         Recomendamos a adoção das ações propostas e a realização de análises periódicas para garantir a segurança contínua dos e-mails corporativos.
         `;
         pdf.text(introText3, 20, 50, { maxWidth: pageWidth - 40 });
+        pdf.text(footer, 8, pageHeight - 10);
+        pdf.text(`https://${footer}.com.br`, 8, pageHeight - 6);
         pdf.text("3", pageWidth - 10, pageHeight - 5);
 
           // Salva o PDF depois de processar todos os arquivos
@@ -574,7 +565,7 @@
             project: "SEBRAE",
             owner: "Gabriel Souza Valença",
             title: "MAILINSPECTOR (HSC)",
-            footer: "Vilti"
+            footer: "VILTI "
           };
         }
       });
