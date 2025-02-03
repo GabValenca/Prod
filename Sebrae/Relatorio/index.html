@@ -88,7 +88,7 @@
       function fixEncoding(str) {
         return str
           .replace(/Quantidade/g, "Qtd.")
-          .replace(/DLP/g, "Total")
+          .replace(/DLP /g, "Total")
           .replace(/Auditoria/g, "")
           .replace(/Conte√É¬∫do/g, "Conteúdo")
           .replace(/Destinat√É¬°rios/g, "Destinatários")
@@ -452,10 +452,10 @@
                               // Adiciona uma nova página para o gráfico e a tabela
                               pdf.addPage();
                               // Insere o gráfico
-                              pdf.addImage(imageURL, "PNG", 15, 25, 180, 100);
+                              pdf.addImage(imageURL, "PNG", 15, 25, 180, 120);
                               // Insere a tabela com todas as linhas de dados do segmento
                               pdf.autoTable({
-                                startY: 130,
+                                startY: 150,
                                 head: [headerCells],
                                 body: tableData,
                                 theme: "grid",
