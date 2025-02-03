@@ -471,6 +471,7 @@
                                 theme: "grid",
                                 styles: { fontSize: 5 }
                               });
+                              pdf.text(introText2, 20, 50, { maxWidth: pageWidth - 40 });
                             } catch (err) {
                               console.error("Erro ao converter gráfico em imagem ou gerar tabela:", err);
                             }
