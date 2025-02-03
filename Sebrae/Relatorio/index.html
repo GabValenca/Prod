@@ -88,6 +88,8 @@
       function fixEncoding(str) {
         return str
           .replace(/Quantidade/g, "Qtd.")
+          .replace(/DLP/g, "Total")
+          .replace(/Auditoria/g, "")
           .replace(/Conte√É¬∫do/g, "Conteúdo")
           .replace(/Destinat√É¬°rios/g, "Destinatários")
           .replace(/DestinatÃ¡rios/g, "Destinatários")
@@ -102,9 +104,7 @@
           .replace(/VÃrus/g, "Vírus")
           .replace(/ApariÃ§Ã£o/g, "Aparição")
           .replace(/Email Impostor/g, "Impostor")
-          .replace(/'/g, "")
-          .replace(/DLP / /g, "Total")
-          .replace(/Auditoria/g, "")
+          .replace(/'/g, "");
       }
 
       // Paleta de cores para as categorias
@@ -432,8 +432,8 @@
                     // Cria um canvas off-screen para o gráfico
                     const canvas = document.createElement("canvas");
                     canvas.width = 600;
-                    canvas.height = 400;
-                    canvas.style.position = "absolute";
+                    canvas.height = 420;
+                    canvas.style.position = "justify";
                     canvas.style.left = "-9999px";
                     document.body.appendChild(canvas);
                     const ctx = canvas.getContext("2d");
@@ -567,7 +567,7 @@
             project: "SEBRAE",
             owner: "Gabriel Souza Valença",
             title: "MAILINSPECTOR (HSC)",
-            footer: "VILTI"
+            footer: "VILTI "
           };
         }
       });
