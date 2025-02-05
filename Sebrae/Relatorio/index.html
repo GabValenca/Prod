@@ -17,19 +17,18 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-          background-image: url('https://raw.githubusercontent.com/GabValenca/Prod/main/Sebrae/Relatorio/DRAX/Drax-Wallpaper.jpeg');
-          background-size: cover;
-          background-position: center;
-          background-repeat: no-repeat;
+      body {
+        background-image: url('https://raw.githubusercontent.com/GabValenca/Prod/main/Sebrae/Relatorio/DRAX/Drax-Wallpaper.jpeg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+      @media print {
+        #form-container {
+          display: none;
         }
-  
-        @media print {
-          #form-container {
-            display: none;
-          }
-        }
-      </style>
+      }
+    </style>
     <style>
       @media print {
         #form-container {
@@ -40,7 +39,7 @@
   </head>
   <body class="bg-gray-50 flex">
     <!-- Sidebar -->
-    <aside class="w-64 h-screen text-white fixed flex flex-col items-center p-4">
+    <aside class="w-32 h-screen text-white fixed flex flex-col items-center p-4">
       <div class="text-4xl">Gerador de PDF</div>
       <nav class="mt-6 w-full">
         <ul class="space-y-4 text-lg">
@@ -54,7 +53,7 @@
       </nav>
     </aside>
 
-    <!-- Formulário de Entrada (envolvido pelo Vue) -->
+    <!-- Formulário de Entrada (Vue) -->
     <div id="app" class="ml-64 p-6 bg-white shadow-lg rounded-lg">
       <h2 class="text-xl font-semibold mb-4">Configuração do Documento</h2>
       <div id="form-container" class="grid grid-cols-1 gap-4">
@@ -66,7 +65,7 @@
             <option value="Drax">Drax</option>
           </select>
         </div>
-                <div>
+        <div>
           <label class="block text-sm font-medium">Title</label>
           <input type="text" id="title" v-model="title" class="w-full border rounded p-2" />
         </div>
@@ -103,10 +102,11 @@
 
     <script>
       // Função para formatar números com separador de milhares (ex.: 9090 → "9.090")
+      // Aqui NÃO alteramos a função em si; a exceção será aplicada no momento de usar essa função.
       function formatNumber(num) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
       }
-
+      
       document.getElementById("downloadPdf").addEventListener("click", async function () {
         try {
           const { jsPDF } = window.jspdf;
@@ -114,9 +114,9 @@
           const pageWidth = pdf.internal.pageSize.getWidth();
           const pageHeight = pdf.internal.pageSize.getHeight();
 
-          // Variáveis para TOC (sumário) – número relativo de página de conteúdo
+          // Variáveis para o sumário (TOC)
           let tocItems = [];
-          let contentPageNumber = 1; // Inicia em 1 para a Introdução
+          let contentPageNumber = 1;
 
           function fixEncoding(str) {
             return str
@@ -187,7 +187,6 @@
                   }
                   companyLogoData = event.target.result;
                   companyLogoDimensions = { width, height };
-                  // Adiciona o company logo na capa (página 1)
                   pdf.addImage(companyLogoData, "PNG", 10, 10, width, height);
                   resolve();
                 };
@@ -238,8 +237,6 @@
                   else { width = height * aspectRatio; }
                   clientLogoData = event.target.result;
                   clientLogoDimensions = { width, height };
-                  // Posiciona o client logo no canto superior direito da capa
-                  // Aqui, ajustamos a posição conforme necessário. Exemplo: 10 mm de margem à direita.
                   pdf.addImage(clientLogoData, "PNG", (pageWidth - 50) / 2, pageHeight / 2, 50, 30);
                   resolve();
                 };
@@ -275,7 +272,7 @@
           }
           // Fim do processamento dos logos
 
-          // Função para adicionar uma nova página com o company logo (usada nas páginas de conteúdo)
+          // Função para adicionar uma nova página com o company logo (para as páginas de conteúdo)
           function addPageWithLogo() {
             pdf.addPage();
             if (companyLogoData && companyLogoDimensions) {
@@ -319,7 +316,7 @@
           // ========================
           tocItems.push({ title: "Introdução", page: contentPageNumber });
           contentPageNumber++;
-          addPageWithLogo(); // Cria a página de Introdução (página 3 do PDF)
+          addPageWithLogo(); // Cria a página de Introdução (página 3)
           pdf.setFont("helvetica", "bold");
           pdf.setFontSize(20);
           pdf.text("MailInspector", pageWidth / 2, 30, { align: "center" });
@@ -425,17 +422,101 @@
                       continue;
                     }
                     const headerCells = segment[0].split(";").map(cell => fixEncoding(cell.trim()));
-                    if (headerCells.length !== chartMapping[i].expectedColumns) {
-                      console.warn(
-                        `Segmento "${chartMapping[i].title}": esperado ${chartMapping[i].expectedColumns} colunas, mas encontrado ${headerCells.length}.`
-                      );
-                    }
                     const tableData = [];
                     for (let j = 1; j < segment.length; j++) {
                       if (segment[j].trim() === "") continue;
                       const rowCells = segment[j].split(";").map(cell => fixEncoding(cell.trim()));
                       tableData.push(rowCells);
                     }
+
+                    // Se for o gráfico "Volume de Mensagens por Data", aplicar modificações:
+                    if (chartMapping[i].title === "Volume de Mensagens por Data") {
+                      // Verifica se há pelo menos 3 colunas no cabeçalho e em cada linha
+                      if (headerCells.length > 2) {
+                        headerCells.splice(2, 1);
+                      } else {
+                        console.warn("Cabeçalho com menos de 3 colunas:", headerCells);
+                      }
+                      tableData.forEach(row => {
+                        if (row.length > 2) {
+                          row.splice(2, 1);
+                        } else {
+                          console.warn("Linha com menos de 3 colunas:", row);
+                        }
+                      });
+
+                      // Formata a primeira coluna (exceto se o valor for "Total")
+                      tableData.forEach(row => {
+                        if (row[0] && row[0] !== "Total") {
+                          let dateObj = new Date(row[0]);
+                          if (!isNaN(dateObj.getTime())) {
+                            const day = String(dateObj.getDate()).padStart(2, '0');
+                            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                            const year = dateObj.getFullYear();
+                            row[0] = `${day}/${month}/${year}`;
+                          }
+                        }
+                      });
+                    }
+
+                    // Remoções específicas para outros gráficos (exemplos)
+                    if (chartMapping[i].title === "Top E-mail Relays") {
+                      // Removemos a quarta coluna (índice 3)
+                      if (headerCells.length > 3) {
+                        headerCells.splice(3, 1);
+                      } else {
+                        console.warn("Cabeçalho insuficiente para 'Top E-mail Relays'", headerCells);
+                      }
+                      tableData.forEach(row => {
+                        if (row.length > 3) {
+                          row.splice(3, 1);
+                        } else {
+                          console.warn("Linha insuficiente em 'Top E-mail Relays'", row);
+                        }
+                      });
+                    }
+
+                    if (chartMapping[i].title === "Relatório de Vírus") {
+                      // Removemos a segunda coluna (índice 1)
+                      if (headerCells.length > 1) {
+                        headerCells.splice(1, 1);
+                      } else {
+                        console.warn("Cabeçalho insuficiente para 'Relatório de Vírus'", headerCells);
+                      }
+                      tableData.forEach(row => {
+                        if (row.length > 1) {
+                          row.splice(1, 1);
+                        } else {
+                          console.warn("Linha insuficiente em 'Relatório de Vírus'", row);
+                        }
+                      });
+                    }
+
+                    if (
+                      chartMapping[i].title === "Top Remetentes por Quantidade (por Email)" ||
+                      chartMapping[i].title === "Top Remetentes por Quantidade (por Domínio)" ||
+                      chartMapping[i].title === "Top Destinatário por Volume (por Email)" ||
+                      chartMapping[i].title === "Top Remetentes por Volume" ||
+                      chartMapping[i].title === "Top Destinatário por Quantidade (por Domínio)" ||
+                      chartMapping[i].title === "Top Destinatário por Quantidade (por Email)" ||
+                      chartMapping[i].title === "Top Destinatário por Volume (por Domínio)"
+                    ) {
+                      // Remove a terceira coluna (índice 2)
+                      if (headerCells.length > 2) {
+                        headerCells.splice(2, 1);
+                      } else {
+                        console.warn("Cabeçalho com menos de 3 colunas:", headerCells);
+                      }
+                      tableData.forEach(row => {
+                        if (row.length > 2) {
+                          row.splice(2, 1);
+                        } else {
+                          console.warn("Linha com menos de 3 colunas:", row);
+                        }
+                      });
+                    }
+
+                    // Se for o primeiro segmento, adiciona a linha de totais (exceto para charts de outros tipos)
                     let chartTableData;
                     if (i === 0) {
                       const totals = [];
@@ -452,22 +533,11 @@
                     } else {
                       chartTableData = tableData;
                     }
+
                     let chartData = {};
                     if (chartMapping[i].type === "doughnut") {
-                      if (chartMapping[i].title === "Top Destinatário por Volume (por Domínio)") {
-                        const labels = tableData.map(row => row[0]);
-                        const dataArr = tableData.map(row => Number(row[1]));
-                        chartData = {
-                          labels: labels,
-                          datasets: [{
-                            label: chartMapping[i].title,
-                            data: dataArr,
-                            backgroundColor: colorPalette.slice(0, labels.length),
-                            borderWidth: 1
-                          }]
-                        };
-                      } else if (
-                        chartMapping[i].title === "Principais Remetentes de SPAM (por Email)" ||
+                      if (
+                        chartMapping[i].title === "Top Destinatário por Volume (por Domínio)" ||
                         chartMapping[i].title === "Principais Remetentes de SPAM (por Domínio)" ||
                         chartMapping[i].title === "Relatório de Vírus"
                       ) {
@@ -496,49 +566,27 @@
                         };
                       }
                     } else {
-                      if (chartMapping[i].title === "Top E-mail Relays") {
-                        const modifiedChartTableData = chartTableData.map(row => row.slice(0, -1));
-                        const modifiedHeaderCells = headerCells.slice(0, -1);
-                        const xLabels = modifiedChartTableData.map(row => row[0]);
-                        const datasets = [];
-                        for (let col = 1; col < modifiedHeaderCells.length; col++) {
-                          if (modifiedHeaderCells[col].trim() === "Volume") continue;
-                          const dataArr = modifiedChartTableData.map(row => Number(row[col]));
-                          const datasetColor = colorPalette[(col - 1) % colorPalette.length];
-                          datasets.push({
-                            label: modifiedHeaderCells[col],
-                            data: dataArr,
-                            backgroundColor: datasetColor,
-                            borderColor: datasetColor.replace("0.5", "1"),
-                            borderWidth: 1
-                          });
-                        }
-                        chartData = { labels: xLabels, datasets: datasets };
-                      } else {
-                        const xLabels = chartTableData.map(row => row[0]);
-                        const datasets = [];
-                        for (let col = 1; col < headerCells.length; col++) {
-                          if (headerCells[col].trim() === "Volume") continue;
-                          if (i === 0 && (col === 1 || col === 2)) continue;
-                          const dataArr = chartTableData.map(row => Number(row[col]));
-                          const datasetColor = colorPalette[(col - 1) % colorPalette.length];
-                          datasets.push({
-                            label: headerCells[col],
-                            data: dataArr,
-                            backgroundColor: datasetColor,
-                            borderColor: datasetColor.replace("0.5", "1"),
-                            borderWidth: 1
-                          });
-                        }
-                        chartData = { labels: xLabels, datasets: datasets };
+                      const xLabels = chartTableData.map(row => row[0]);
+                      const datasets = [];
+                      for (let col = 1; col < headerCells.length; col++) {
+                        const dataArr = chartTableData.map(row => Number(row[col]));
+                        const datasetColor = colorPalette[(col - 1) % colorPalette.length];
+                        datasets.push({
+                          label: headerCells[col],
+                          data: dataArr,
+                          backgroundColor: datasetColor,
+                          borderColor: datasetColor.replace("0.5", "1"),
+                          borderWidth: 1
+                        });
                       }
+                      chartData = { labels: xLabels, datasets: datasets };
                     }
 
-                    // Registra o título do gráfico no TOC
+                    // Registra o título do gráfico no sumário e incrementa o contador de páginas
                     tocItems.push({ title: chartMapping[i].title, page: contentPageNumber });
                     contentPageNumber++;
 
-                    // Cria o gráfico
+                    // Cria o gráfico usando Chart.js
                     const canvas = document.createElement("canvas");
                     canvas.width = 600;
                     canvas.height = 420;
@@ -558,13 +606,22 @@
                               const imageURL = chartInstance.toBase64Image();
                               addPageWithLogo();
                               pdf.addImage(imageURL, "PNG", 15, 25, 180, 120);
-                              // Formata os números da tabela usando a função formatNumber
-                              const formattedTableData = tableData.map(row =>
-                                row.map(cell => {
-                                  const n = parseFloat(cell);
-                                  return isNaN(n) ? cell : formatNumber(n);
+                              // *** Aqui aplicamos a exceção para a coluna 0 de "Volume de Mensagens por Data"
+                              const formattedTableData = tableData.map((row) =>
+                                row.map((cell, colIndex) => {
+                                    // Se for "Volume de Mensagens por Data" e a coluna for a 0, retorna sem formatação
+                                    if (chartMapping[i].title === "Volume de Mensagens por Data" && colIndex === 0) {
+                                    return cell;
+                                    }
+                                    // Se for "Top E-mail Relays" e a coluna for a 1 (segunda coluna), retorna sem formatação
+                                    if (chartMapping[i].title === "Top E-mail Relays" && colIndex === 1) {
+                                    return cell;
+                                    }
+                                    const n = parseFloat(cell);
+                                    return isNaN(n) ? cell : formatNumber(n);
                                 })
-                              );
+                                );
+
                               pdf.autoTable({
                                 startY: 150,
                                 head: [headerCells],
@@ -630,7 +687,7 @@
             });
           }
 
-          // --- Adiciona rodapé e numeração real de página em cada página ---
+          // --- Adiciona rodapé e numeração de página em cada página ---
           const totalPages = pdf.internal.getNumberOfPages();
           for (let i = 1; i <= totalPages; i++) {
             pdf.setPage(i);
@@ -640,7 +697,7 @@
             pdf.text(`${i}`, pageWidth - 10, pageHeight - 5, { align: "right" });
           }
 
-          // --- Preenche o Sumário (página 2) com os itens de TOC ---
+          // --- Preenche o Sumário (página 2) com os itens do TOC ---
           pdf.setPage(2);
           pdf.setFont("helvetica", "normal");
           pdf.setFontSize(12);
@@ -652,17 +709,17 @@
           });
 
           // --- Salva o PDF ---
-          pdf.save("documento.pdf");
+          pdf.save(`(${project}) ${footer} - Relatorio Mensal MailInspector`);
         } catch (err) {
           console.error("Erro ao gerar o PDF:", err);
         }
       });
 
-      // Configuração do Vue para pré-definir os valores dos inputs e perfis
+      // Configuração do Vue (com valores pré-definidos)
       const app = Vue.createApp({
         data() {
           return {
-            selectedProfile: "VILTI", // Perfil padrão
+            selectedProfile: "VILTI",
             profiles: {
               VILTI: {
                 companyLogo: "https://raw.githubusercontent.com/GabValenca/Prod/9360aafcd7cd663118dd511b2cc83bf99a7615a5/Sebrae/Relatorio/VILTI/Transparente.png",
@@ -672,7 +729,7 @@
                 owner: "Gabriel S Valença",
                 title: "MailInspector (HSC)",
                 footer: "VILTI",
-                headerColor: [0, 102, 204]  // Azul
+                headerColor: [0, 102, 204]
               },
               Drax: {
                 clientName: "Teste",
@@ -680,7 +737,7 @@
                 owner: "Gabriel S Valença",
                 title: "MailInspector (HSC)",
                 footer: "DraxTec",
-                headerColor: [204, 0, 0]  // Vermelho
+                headerColor: [204, 0, 0]
               }
             },
             clientName: "SEBRAE",
@@ -705,7 +762,7 @@
       });
       app.mount("#app");
 
-      // Função auxiliar para adicionar imagem (usada para dados, se necessário)
+      // Função auxiliar para adicionar imagem (caso necessário)
       function addImageToPDF(file, x, y, maxWidth, maxHeight) {
         return new Promise((resolve, reject) => {
           if (file) {
