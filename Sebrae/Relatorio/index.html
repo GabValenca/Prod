@@ -44,6 +44,14 @@
     <div id="app" class="ml-64 p-6 bg-white shadow-lg rounded-lg">
       <h2 class="text-xl font-semibold mb-4">Configuração do Documento</h2>
       <div id="form-container" class="grid grid-cols-1 gap-4">
+        <!-- Campo de seleção de perfil -->
+        <div>
+          <label class="block text-sm font-medium">Perfil</label>
+          <select v-model="selectedProfile" class="w-full border rounded p-2">
+            <option value="VILTI">VILTI</option>
+            <option value="Drax">Drax</option>
+          </select>
+        </div>
         <div>
           <label class="block text-sm font-medium">Company Logo</label>
           <input type="file" id="companyLogo" class="w-full border rounded p-2" />
@@ -73,10 +81,6 @@
           <input type="text" id="footer" v-model="footer" class="w-full border rounded p-2" />
         </div>
         <div>
-          <label class="block text-sm font-medium">Dados (Arquivo TXT ou Imagem)</label>
-          <input type="file" id="dados" class="w-full border rounded p-2" />
-        </div>
-        <div>
           <label class="block text-sm font-medium">Arquivo CSV</label>
           <input type="file" id="csvFile" class="w-full border rounded p-2" />
         </div>
@@ -84,44 +88,6 @@
     </div>
 
     <script>
-      // Função para corrigir caracteres com problemas de encoding
-      function fixEncoding(str) {
-        return str
-          .replace(/Quantidade/g, "Qtd.")
-          .replace(/DLP /g, "Total")
-          .replace(/Auditoria/g, "")
-          .replace(/Conte√É¬∫do/g, "Conteúdo")
-          .replace(/Destinat√É¬°rios/g, "Destinatários")
-          .replace(/DestinatÃ¡rios/g, "Destinatários")
-          .replace(/AmeaÃ§as/g, "Ameaças")
-          .replace(/Conte&uacuteo/g, "Conteúdo")
-          .replace(/ConteÃºdo/g, "Conteúdo")
-          .replace(/ProvÃ¡vel/g, "Provável")
-          .replace(/Prov√É¬°vel/g, "Provável")
-          .replace(/V√É¬≠rus/g, "Vírus")
-          .replace(/VÃ-rus/g, "Vírus")
-          .replace(/Vã-rus/g, "Vírus")
-          .replace(/VÃrus/g, "Vírus")
-          .replace(/ApariÃ§Ã£o/g, "Aparição")
-          .replace(/Email Impostor/g, "Impostor")
-          .replace(/'/g, "");
-      }
-
-      // Paleta de cores para as categorias
-      const colorPalette = [
-        "rgba(255, 99, 132, 0.5)",
-        "rgba(54, 162, 235, 0.5)",
-        "rgba(255, 206, 86, 0.5)",
-        "rgba(75, 192, 192, 0.5)",
-        "rgba(153, 102, 255, 0.5)",
-        "rgba(255, 159, 64, 0.5)",
-        "rgba(199, 199, 199, 0.5)",
-        "rgba(83, 102, 255, 0.5)",
-        "rgba(255, 102, 102, 0.5)",
-        "rgba(102, 255, 102, 0.5)",
-        "rgba(102, 102, 255, 0.5)"
-      ];
-
       document.getElementById("downloadPdf").addEventListener("click", async function () {
         try {
           const { jsPDF } = window.jspdf;
@@ -133,146 +99,220 @@
           const pageWidth = pdf.internal.pageSize.getWidth();
           const pageHeight = pdf.internal.pageSize.getHeight();
 
-          // Obtém os valores dos campos (aplicando fixEncoding)
+          // Variáveis para TOC (sumário) – número relativo de página de conteúdo
+          let tocItems = [];
+          let contentPageNumber = 1; // Inicia em 1 para a Introdução
+
+          function fixEncoding(str) {
+            return str
+              .replace(/Quantidade/g, "Qtd.")
+              .replace(/DLP /g, "Total")
+              .replace(/Auditoria/g, "")
+              .replace(/Conte√É¬∫do/g, "Conteúdo")
+              .replace(/Destinat√É¬°rios/g, "Destinatários")
+              .replace(/DestinatÃ¡rios/g, "Destinatários")
+              .replace(/AmeaÃ§as/g, "Ameaças")
+              .replace(/Conte&uacuteo/g, "Conteúdo")
+              .replace(/ConteÃºdo/g, "Conteúdo")
+              .replace(/ProvÃ¡vel/g, "Provável")
+              .replace(/Prov√É¬°vel/g, "Provável")
+              .replace(/V√É¬≠rus/g, "Vírus")
+              .replace(/VÃ-rus/g, "Vírus")
+              .replace(/Vã-rus/g, "Vírus")
+              .replace(/VÃrus/g, "Vírus")
+              .replace(/ApariÃ§Ã£o/g, "Aparição")
+              .replace(/Email Impostor/g, "Impostor")
+              .replace(/'/g, "");
+          }
+
+          // Paleta de cores para os gráficos
+          const colorPalette = [
+            "rgba(255, 99, 132, 0.5)",
+            "rgba(54, 162, 235, 0.5)",
+            "rgba(255, 206, 86, 0.5)",
+            "rgba(75, 192, 192, 0.5)",
+            "rgba(153, 102, 255, 0.5)",
+            "rgba(255, 159, 64, 0.5)",
+            "rgba(199, 199, 199, 0.5)",
+            "rgba(83, 102, 255, 0.5)",
+            "rgba(255, 102, 102, 0.5)",
+            "rgba(102, 255, 102, 0.5)",
+            "rgba(102, 102, 255, 0.5)"
+          ];
+
+          // Obtém os valores dos inputs
           const titleInput = fixEncoding(document.getElementById("title").value || "RELATÓRIO MENSAL");
           const clientName = fixEncoding(document.getElementById("clientName").value || "N/A");
           const project = fixEncoding(document.getElementById("project").value || "N/A");
           const owner = fixEncoding(document.getElementById("owner").value || "N/A");
           const footer = fixEncoding(document.getElementById("footer").value || "N/A");
           const currentDate = new Date().toLocaleDateString();
-          const dadosFile = document.getElementById("dados").files[0];
           const csvFile = document.getElementById("csvFile").files[0];
 
-          // Página inicial: título centralizado com fonte bold tamanho 50
+          // Recupera a cor do cabeçalho definida pelo perfil selecionado
+          const currentProfile = app._instance.data.selectedProfile;
+          const headerColor = app._instance.data.profiles[currentProfile].headerColor;
+
+          // Função auxiliar para adicionar o company logo
+          let companyLogoData = null;
+          let companyLogoDimensions = null;
+          const companyLogoInput = document.getElementById("companyLogo").files[0];
+          if (companyLogoInput) {
+            await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = function (event) {
+                const img = new Image();
+                img.onload = function () {
+                  const aspectRatio = img.width / img.height;
+                  let width = 40, height = 20;
+                  if (img.width > img.height) {
+                    height = width / aspectRatio;
+                  } else {
+                    width = height * aspectRatio;
+                  }
+                  companyLogoData = event.target.result;
+                  companyLogoDimensions = { width, height };
+                  // Adiciona o company logo na capa (página 1)
+                  pdf.addImage(companyLogoData, "PNG", 10, 10, width, height);
+                  resolve();
+                };
+                img.src = event.target.result;
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(companyLogoInput);
+            });
+          }
+
+          // *** NOVO: Adiciona o client logo na primeira página, se existir ***
+          const clientLogoInput = document.getElementById("clientLogo").files[0];
+          if (clientLogoInput) {
+            await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = function (event) {
+                const img = new Image();
+                img.onload = function () {
+                  // Define dimensões para o client logo (ajuste conforme necessário)
+                  let width = 50, height = 30;
+                  const aspectRatio = img.width / img.height;
+                  if (img.width > img.height) {
+                    height = width / aspectRatio;
+                  } else {
+                    width = height * aspectRatio;
+                  }
+                  // Adiciona o client logo na primeira página; posicionado no canto superior direito
+                  pdf.addImage(event.target.result, "PNG", (pageWidth - 50) / 2, pageHeight / 2, 50, 30);
+                  resolve();
+                };
+                img.src = event.target.result;
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(clientLogoInput);
+            });
+          }
+          // Fim da inclusão do client logo
+
+          // Função para adicionar uma nova página com o company logo (usada nas páginas de conteúdo)
+          function addPageWithLogo() {
+            pdf.addPage();
+            if (companyLogoData && companyLogoDimensions) {
+              pdf.addImage(companyLogoData, "PNG", 10, 10, companyLogoDimensions.width, companyLogoDimensions.height);
+            }
+          }
+
+          // ========================
+          // PÁGINA 1: CAPA
+          // ========================
           pdf.setFont("helvetica", "bold");
           pdf.setFontSize(35);
           pdf.text(`RELATÓRIO MENSAL`, pageWidth / 2, pageHeight / 2 - 60, { align: "center" });
           pdf.text(`DE ANÁLISE`, pageWidth / 2, pageHeight / 2 - 40, { align: "center" });
           pdf.text(titleInput, pageWidth / 2, pageHeight / 2 - 20, { align: "center" });
-          // Redefine a fonte para o restante do documento
           pdf.setFont("helvetica", "normal");
           pdf.setFontSize(10);
+          pdf.text(`Cliente: `, 20, pageHeight - 50);
+          pdf.text(`${clientName}`, 45, pageHeight - 50);
+          pdf.text(`Data: `, 20, pageHeight - 45);
+          pdf.text(`${currentDate}`, 45, pageHeight - 45);
+          pdf.text(`Projeto: `, 20, pageHeight - 40);
+          pdf.text(`${project}`, 45, pageHeight - 40);
+          pdf.text(`Responsável:`, 20, pageHeight - 35);
+          pdf.text(`${owner}`, 45, pageHeight - 35);
 
-          // Logos (se fornecidos)
-          const companyLogoInput = document.getElementById("companyLogo").files[0];
-          const clientLogoInput = document.getElementById("clientLogo").files[0];
-
-          const addImageToPDF = (file, x, y, maxWidth, maxHeight) => {
-            return new Promise((resolve, reject) => {
-              if (file) {
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                  const img = new Image();
-                  img.src = event.target.result;
-                  img.onload = function () {
-                    const aspectRatio = img.width / img.height;
-                    let width = maxWidth;
-                    let height = maxHeight;
-                    if (img.width > img.height) {
-                      height = width / aspectRatio;
-                    } else {
-                      width = height * aspectRatio;
-                    }
-                    pdf.addImage(event.target.result, "PNG", x, y, width, height);
-                    resolve();
-                  };
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-              } else {
-                resolve();
-              }
-            });
-          };
-
-          if (companyLogoInput) {
-            await addImageToPDF(companyLogoInput, 10, 10, 40, 20);
+          // ========================
+          // PÁGINA 2: SUMÁRIO
+          // ========================
+          pdf.addPage(); // Cria a página de sumário (página 2)
+          // Nesta página, adiciona o company logo (se existir) e o título "Sumário"
+          if (companyLogoData && companyLogoDimensions) {
+            pdf.addImage(companyLogoData, "PNG", 10, 10, companyLogoDimensions.width, companyLogoDimensions.height);
           }
-          if (clientLogoInput) {
-            await addImageToPDF(clientLogoInput, (pageWidth - 50) / 2, pageHeight / 2, 50, 30);
-          }
+          pdf.setFont("helvetica", "bold");
+          pdf.setFontSize(20);
+          pdf.text("Sumário", pageWidth / 2, 30, { align: "center" });
+          // O conteúdo do sumário (TOC) será preenchido posteriormente
 
-          // Rodapé e informações extras na primeira página
-          pdf.text(`\t\tCliente: \t  ${clientName}`, 8, pageHeight - 50);
-          pdf.text(`\t\tData: \t      ${currentDate}`, 8, pageHeight - 45);
-          pdf.text(`\t\tProjeto: \t  ${project}`, 8, pageHeight - 40);
-          pdf.text(`\t\tResponsável:  ${owner}`, 8, pageHeight - 35);
-          pdf.text(footer, 8, pageHeight - 10);
-          pdf.text(`https://${footer}.com.br`, 8, pageHeight - 6);
-          pdf.text("1", pageWidth - 10, pageHeight - 5);
+          // ========================
+          // PÁGINA 3: INTRODUÇÃO
+          // ========================
+          tocItems.push({ title: "Introdução", page: contentPageNumber });
+          contentPageNumber++;
+          addPageWithLogo(); // Cria a página de Introdução (página 3 do PDF)
+          pdf.setFont("helvetica", "bold");
+          pdf.setFontSize(20);
+          pdf.text("MailInspector", pageWidth / 2, 30, { align: "center" });
+          pdf.setFont("helvetica", "normal");
+          pdf.setFontSize(12);
+          const introText10 = `1. INTRODUÇÃO`;
+          const introText111 = `    MailInspector é uma ferramenta avançada de análise de emails que permite a inspeção detalhada de campanhas, identificação de spams, e monitoramento de performance de mensagens.`;
+          const introText112 = `  Este relatório apresenta a análise detalhada dos e-mails enviados e recebidos pelo ${clientName}, utilizando a ferramenta MailInspector da HSC através do suporte de sustentação da ${footer}. O objetivo desta análise é verificar a conformidade com boas práticas de segurança, identificar possíveis vulnerabilidades e avaliar a reputação dos remetentes e domínios.`;
+          const introText113 = `  A ferramenta MailInspector permite detectar falhas de autenticação, avaliar a integridade das mensagens e identificar potenciais ameaças, como phishing, spam e ataques baseados em e-mails.`;
+          const introText114 = `2. METODOLOGIA\r
+        Para garantir uma análise completa, foram adotados os seguintes critérios:`; 
+          const introText12 = `2.1. Análise de Autenticação (SPF, DKIM e DMARC)`;    
+          const introText13 = `SPF (Sender Policy Framework): Verifica se o e-mail foi enviado de um servidor autorizado pelo domínio.`; 
+          const introText14 = `DKIM (DomainKeys Identified Mail): Avalia a assinatura digital do e-mail para garantir a autenticidade da mensagem.`; 
+          const introText15 = `DMARC (Domain-based Message Authentication, Reporting & Conformance): Determina a política do domínio para tratamento de e-mails falhos em autenticação`; 
+          const introText16 = `2.2. Análise de Cabeçalhos`; 
+          const introText17 = `Verificação da estrutura dos e-mails para identificar inconsistências e manipulações.`; 
+          const introText18 = `Detecção de redirecionamentos suspeitos e alterações no fluxo do e-mail`; 
+          const introText19 = `2.3. Reputação do Remetente e Domínio`; 
+          const introText20 = `Consulta a listas de reputação de IPs e domínios para identificar possíveis problemas.`; 
+          const introText21 = `Verificação em blacklists públicas e privadas.`; 
+          const introText22 = `2.4. Detecção de Ameaças (Phishing, Spam e Malware)`; 
+          const introText23 = `Identificação de palavras-chave e padrões típicos de ataques de phishing e spam.`; 
+          const introText24 = `Verificação de links maliciosos e anexos suspeitos.`; 
+          const introText25 = `Avaliação de tentativas de spoofing e engenharia social.`; 
 
-         // Página 2: Introdução sobre a ferramenta MailInspector
-        pdf.addPage();
-        pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(20);
-        pdf.text("MailInspector", pageWidth / 2, 30, { align: "center" });
-        pdf.setFont("helvetica", "normal");
-        pdf.setFontSize(12);
-        const introText1 = `1.INTRODUÇÃO\r
-        MailInspector é uma ferramenta avançada de análise de emails que permite a inspeção detalhada de campanhas, identificação de spams, e monitoramento de performance de mensagens. Com recursos de gráficos dinâmicos e relatórios personalizados, a ferramenta auxilia na tomada de decisões estratégicas para aprimorar a comunicação e a segurança das suas campanhas.\r
-        
-        Este relatório apresenta a análise detalhada dos e-mails enviados e recebidos pelo ${clientName}, utilizando a ferramenta MailInspector da HSC através do suporte de sustentacao da ${footer}. O objetivo desta análise é verificar a conformidade com boas práticas de segurança, identificar possíveis vulnerabilidades e avaliar a reputação dos remetentes e domínios.\r
+          pdf.text(introText10, 20, 50, { maxWidth: pageWidth - 40});
+          pdf.text(introText111, 20, 55, { maxWidth: pageWidth - 40, align: "justify" });
+          pdf.text(introText112, 20, 85, { maxWidth: pageWidth - 40, align: "justify" });
+          pdf.text(introText113, 20, 115, { maxWidth: pageWidth - 40, align: "justify" });
+          pdf.text(introText114, 20, 135, { maxWidth: pageWidth - 40 });
+          pdf.text(introText12, 20, 150, { maxWidth: pageWidth - 40 });
+          pdf.text(introText13, 25, 155, { maxWidth: pageWidth - 45, align: "justify" });
+          pdf.text(introText14, 25, 165, { maxWidth: pageWidth - 45, align: "justify" });
+          pdf.text(introText15, 25, 175, { maxWidth: pageWidth - 45, align: "justify" });
+          pdf.text(introText16, 20, 190, { maxWidth: pageWidth - 40 });
+          pdf.text(introText17, 25, 195, { maxWidth: pageWidth - 45, align: "justify" });
+          pdf.text(introText18, 25, 200, { maxWidth: pageWidth - 45, align: "justify" });
+          pdf.text(introText19, 20, 210, { maxWidth: pageWidth - 40 });
+          pdf.text(introText20, 25, 215, { maxWidth: pageWidth - 45, align: "justify" });
+          pdf.text(introText21, 25, 220, { maxWidth: pageWidth - 45, align: "justify" });
+          pdf.text(introText22, 20, 230, { maxWidth: pageWidth - 40 });
+          pdf.text(introText23, 25, 235, { maxWidth: pageWidth - 45, align: "justify" });
+          pdf.text(introText24, 25, 240, { maxWidth: pageWidth - 45, align: "justify" });
+          pdf.text(introText25, 25, 245, { maxWidth: pageWidth - 45, align: "justify" });
 
-        A ferramenta MailInspector permite detectar falhas de autenticação, avaliar a integridade das mensagens e identificar potenciais ameaças, como phishing, spam e ataques baseados em e-mails.\r\r2.METODOLOGIA\r
-        Para garantir uma análise completa, foram adotados os seguintes critérios:\r
-
-        2.1. Análise de Autenticação (SPF, DKIM e DMARC)\r
-        \tSPF (Sender Policy Framework): Verifica se o e-mail foi enviado de um servidor autorizado pelo domínio.\r
-        \tDKIM (DomainKeys Identified Mail): Avalia a assinatura digital do e-mail para garantir a autenticidade da mensagem.\r
-        \tDMARC (Domain-based Message Authentication, Reporting & Conformance): Determina a política do domínio para tratamento de e-mails falhos em autenticação.\r\r
-        2.2. Análise de Cabeçalhos\r
-        \tVerificação da estrutura dos e-mails para identificar inconsistências e manipulações.\r
-        \tDetecção de redirecionamentos suspeitos e alterações no fluxo do e-mail.\r\r
-        2.3. Reputação do Remetente e Domínio\r
-        \tConsulta a listas de reputação de IPs e domínios para identificar possíveis problemas.\r
-        \tVerificação em blacklists públicas e privadas.\r\r
-        2.4. Detecção de Ameaças (Phishing, Spam e Malware)\r
-        \tIdentificação de palavras-chave e padrões típicos de ataques de phishing e spam.\r
-        \tVerificação de links maliciosos e anexos suspeitos.\r
-        \tAvaliação de tentativas de spoofing e engenharia social.\r
-
-        `;
-        pdf.text(introText1, 20, 50, { maxWidth: pageWidth - 40 });
-        pdf.text("2", pageWidth - 10, pageHeight - 5);
-
-          // Processamento do arquivo "dados" (TXT ou Imagem)
-          if (dadosFile) {
-            if (dadosFile.type === "text/plain") {
-              await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                  const text = fixEncoding(event.target.result);
-                  pdf.addPage();
-                  pdf.setFontSize(12);
-                  pdf.text("Conteúdo do Arquivo Dados:", 14, 20);
-                  let yOffset = 30;
-                  text.split("\n").forEach(line => {
-                    pdf.text(fixEncoding(line), 14, yOffset);
-                    yOffset += 10;
-                  });
-                  pdf.text(footer, 8, pageHeight - 10);
-                  pdf.text("2", pageWidth - 10, pageHeight - 5);
-                  resolve();
-                };
-                reader.onerror = reject;
-                reader.readAsText(dadosFile);
-              });
-            } else if (dadosFile.type.startsWith("image/")) {
-              await addImageToPDF(dadosFile, 14, 30, 180, 100);
-            }
-          }
-
-          // Processamento do arquivo CSV para gerar gráficos e tabelas
+          // ========================
+          // Processamento do CSV para gráficos e tabelas
+          // ========================
           if (csvFile) {
             await new Promise((resolve, reject) => {
               const reader = new FileReader();
               reader.onload = async function (event) {
                 try {
                   const csvText = fixEncoding(event.target.result);
-                  // Divide o arquivo em linhas
                   const lines = csvText.split(/\r?\n/);
-
-                  // Separa os segmentos: cada grupo de linhas não vazias forma um segmento
                   const segments = [];
                   let currentSegment = [];
                   lines.forEach(line => {
@@ -287,7 +327,7 @@
                   });
                   if (currentSegment.length > 0) segments.push(currentSegment);
 
-                  // Mapeamento dos gráficos conforme especificado
+                  // Mapeamento dos gráficos
                   const chartMapping = [
                     { title: "Volume de Mensagens por Data", expectedColumns: 19, type: "line" },
                     { title: "Principais Destinatários de SPAM (por Email)", expectedColumns: 2, type: "bar" },
@@ -305,29 +345,35 @@
                     { title: "Relatório de Vírus", expectedColumns: 3, type: "doughnut" }
                   ];
 
-                  // Para cada segmento (até o número de gráficos mapeados)
+                  const titleFontOptions = {
+                    font: { family: "helvetica", size: 20, weight: "normal" },
+                    color: "black"
+                  };
+                  const chartFontOptions = {
+                    font: { family: "helvetica", size: 8, weight: "normal" },
+                    color: "black"
+                  };
+
+                  // Para cada segmento (gráfico)
                   for (let i = 0; i < Math.min(segments.length, chartMapping.length); i++) {
                     const segment = segments[i];
                     if (segment.length < 2) {
                       console.warn(`Segmento ${i+1} não possui dados suficientes.`);
                       continue;
                     }
-                    // Processa a linha de cabeçalho
                     const headerCells = segment[0].split(";").map(cell => fixEncoding(cell.trim()));
                     if (headerCells.length !== chartMapping[i].expectedColumns) {
                       console.warn(
                         `Segmento "${chartMapping[i].title}": esperado ${chartMapping[i].expectedColumns} colunas, mas encontrado ${headerCells.length}.`
                       );
                     }
-                    // Processa todas as linhas de dados
                     const tableData = [];
                     for (let j = 1; j < segment.length; j++) {
                       if (segment[j].trim() === "") continue;
                       const rowCells = segment[j].split(";").map(cell => fixEncoding(cell.trim()));
                       tableData.push(rowCells);
                     }
-
-                    // Se for o primeiro gráfico ("Volume de Mensagens por Data"), adiciona a linha de totais.
+                    let chartTableData;
                     if (i === 0) {
                       const totals = [];
                       totals[0] = "Total";
@@ -339,15 +385,15 @@
                         totals[col] = sum;
                       }
                       tableData.push(totals);
+                      chartTableData = tableData.slice(0, -1);
+                    } else {
+                      chartTableData = tableData;
                     }
-
                     let chartData = {};
-                    // Se for gráfico do tipo doughnut, aplicar regras especiais conforme título
                     if (chartMapping[i].type === "doughnut") {
                       if (chartMapping[i].title === "Top Destinatário por Volume (por Domínio)") {
-                        // Rótulos: primeira coluna; dados: terceira coluna de cada linha (ignora a linha de cabeçalho)
                         const labels = tableData.map(row => row[0]);
-                        const dataArr = tableData.map(row => Number(row[2]));
+                        const dataArr = tableData.map(row => Number(row[1]));
                         chartData = {
                           labels: labels,
                           datasets: [{
@@ -359,9 +405,9 @@
                         };
                       } else if (
                         chartMapping[i].title === "Principais Remetentes de SPAM (por Email)" ||
-                        chartMapping[i].title === "Principais Remetentes de SPAM (por Domínio)"
+                        chartMapping[i].title === "Principais Remetentes de SPAM (por Domínio)" ||
+                        chartMapping[i].title === "Relatório de Vírus"
                       ) {
-                        // Rótulos: primeira coluna; dados: segunda coluna
                         const labels = tableData.map(row => row[0]);
                         const dataArr = tableData.map(row => Number(row[1]));
                         chartData = {
@@ -374,7 +420,6 @@
                           }]
                         };
                       } else {
-                        // Padrão para doughnut: (caso não seja um dos especiais)
                         const doughnutLabels = headerCells.slice(1);
                         const doughnutData = tableData[0].slice(1).map(v => Number(v));
                         chartData = {
@@ -388,58 +433,55 @@
                         };
                       }
                     } else {
-                      // Para gráficos line e bar:
-                      // - Eixo x: primeira coluna de cada linha de dados.
-                      // - Cada dataset: cada coluna (a partir da segunda),
-                      //   com nome obtido da primeira linha.
-                      // Para o primeiro gráfico ("Volume de Mensagens por Data"),
-                      // ignora a segunda e terceira coluna.
-                      const xLabels = tableData.map(row => row[0]);
-                      const datasets = [];
-                      for (let col = 1; col < headerCells.length; col++) {
-                        if (i === 0 && (col === 1 || col === 2)) continue;
-                        const dataArr = tableData.map(row => Number(row[col]));
-                        const datasetColor = colorPalette[(col - 1) % colorPalette.length];
-                        datasets.push({
-                          label: headerCells[col],
-                          data: dataArr,
-                          backgroundColor: datasetColor,
-                          borderColor: datasetColor.replace("0.5", "1"),
-                          borderWidth: 1
-                        });
+                      if (chartMapping[i].title === "Top E-mail Relays") {
+                        const modifiedChartTableData = chartTableData.map(row => row.slice(0, -1));
+                        const modifiedHeaderCells = headerCells.slice(0, -1);
+                        const xLabels = modifiedChartTableData.map(row => row[0]);
+                        const datasets = [];
+                        for (let col = 1; col < modifiedHeaderCells.length; col++) {
+                          const dataArr = modifiedChartTableData.map(row => Number(row[col]));
+                          const datasetColor = colorPalette[(col - 1) % colorPalette.length];
+                          datasets.push({
+                            label: modifiedHeaderCells[col],
+                            data: dataArr,
+                            backgroundColor: datasetColor,
+                            borderColor: datasetColor.replace("0.5", "1"),
+                            borderWidth: 1
+                          });
+                        }
+                        chartData = { labels: xLabels, datasets: datasets };
+                      } else {
+                        const xLabels = chartTableData.map(row => row[0]);
+                        const datasets = [];
+                        for (let col = 1; col < headerCells.length; col++) {
+                          if (i === 0 && (col === 1 || col === 2)) continue;
+                          const dataArr = chartTableData.map(row => Number(row[col]));
+                          const datasetColor = colorPalette[(col - 1) % colorPalette.length];
+                          datasets.push({
+                            label: headerCells[col],
+                            data: dataArr,
+                            backgroundColor: datasetColor,
+                            borderColor: datasetColor.replace("0.5", "1"),
+                            borderWidth: 1
+                          });
+                        }
+                        chartData = { labels: xLabels, datasets: datasets };
                       }
-                      chartData = { labels: xLabels, datasets: datasets };
                     }
 
-                    // Configurações de fonte para os gráficos: definir título, legendas, e eixos com cor preta e tamanho 20
-                    const titleFontOptions = {
-                      font: {
-                        family: "helvetica",
-                        size: 20,
-                        weight: "normal"
-                      },
-                      color: "black"
-                    };
-                    const chartFontOptions = {
-                      font: {
-                        family: "helvetica",
-                        size: 8,
-                        weight: "normal"
-                      },
-                      color: "black"
-                    };
+                    // Registra o título do gráfico no TOC
+                    tocItems.push({ title: chartMapping[i].title, page: contentPageNumber });
+                    contentPageNumber++;
 
-                    // Cria um canvas off-screen para o gráfico
+                    // Cria o gráfico
                     const canvas = document.createElement("canvas");
                     canvas.width = 600;
                     canvas.height = 420;
-                    canvas.style.position = "justify";
+                    canvas.style.position = "absolute";
                     canvas.style.left = "-9999px";
                     document.body.appendChild(canvas);
                     const ctx = canvas.getContext("2d");
 
-                    // Cria o gráfico conforme o tipo definido, aplicando as configurações de fonte.
-                    // Para os gráficos doughnut, removemos as linhas de grid (não definindo escalas).
                     await new Promise((chartResolve) => {
                       const options = {
                         responsive: false,
@@ -449,22 +491,28 @@
                           onComplete: function() {
                             try {
                               const imageURL = chartInstance.toBase64Image();
-                              // Adiciona uma nova página para o gráfico e a tabela
-                              pdf.addPage();
-                              // Insere o gráfico
+                              addPageWithLogo();
                               pdf.addImage(imageURL, "PNG", 15, 25, 180, 120);
-                              // Insere a tabela com todas as linhas de dados do segmento
                               pdf.autoTable({
                                 startY: 150,
                                 head: [headerCells],
                                 body: tableData,
                                 theme: "grid",
-                                styles: { fontSize: 5 }
+                                styles: { fontSize: 5 },
+                                headStyles: { fillColor: headerColor },
+                                didParseCell: function(data) {
+                                  if (
+                                    chartMapping[i].title === "Volume de Mensagens por Data" &&
+                                    data.row.index === tableData.length - 1
+                                  ) {
+                                    data.cell.styles.fillColor = [230, 230, 230];
+                                    data.cell.styles.textColor = [0, 0, 0];
+                                    data.cell.styles.fontStyle = "bold";
+                                  }
+                                }
                               });
-                              pdf.text(footer, 8, pageHeight - 10);
-                              pdf.text(`https://${footer}.com.br`, 8, pageHeight - 6);  
                             } catch (err) {
-                              console.error("Erro ao converter gráfico em imagem ou gerar tabela:", err);
+                              console.error("Erro ao gerar gráfico/tabela:", err);
                             }
                             document.body.removeChild(canvas);
                             chartResolve();
@@ -477,27 +525,15 @@
                             ...titleFontOptions
                           },
                           legend: {
-                            labels: {
-                              ...chartFontOptions
-                            }
+                            labels: { ...chartFontOptions }
                           }
                         }
                       };
 
-                      // Se o gráfico não for doughnut, definir escalas com os ticks
                       if (chartMapping[i].type !== "doughnut") {
                         options.scales = {
-                          x: {
-                            ticks: {
-                              ...chartFontOptions
-                            }
-                          },
-                          y: {
-                            beginAtZero: true,
-                            ticks: {
-                              ...chartFontOptions
-                            }
-                          }
+                          x: { ticks: { ...chartFontOptions } },
+                          y: { beginAtZero: true, ticks: { ...chartFontOptions } }
                         };
                       }
 
@@ -506,7 +542,6 @@
                         data: chartData,
                         options: options
                       });
-
                     });
                   }
                   resolve();
@@ -522,56 +557,108 @@
               reader.readAsText(csvFile);
             });
           }
-        // Página final: Introdução sobre a ferramenta MailInspector
-        pdf.addPage();
-        pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(20);
-        pdf.text("MailInspector", pageWidth / 2, 30, { align: "center" });
-        pdf.setFont("helvetica", "normal");
-        pdf.setFontSize(12);
-        const introText3 = `4.RECOMENDAÇÕES
-        Com base nos resultados da análise, recomendamos ao Sebrae as seguintes ações para melhorar a segurança e a conformidade dos e-mails:
 
-        Ajustar a configuração do SPF para evitar falsificação de e-mails, restringindo a lista de IPs autorizados.
-        Implementar DMARC com política mais restritiva (quarantine ou reject) para impedir fraudes de identidade.
-        Reforçar a autenticação DKIM para garantir que os e-mails sejam assinados corretamente.
-        Melhorar a conscientização dos colaboradores sobre ataques de phishing e engenharia social.
-        Monitorar regularmente a reputação do IP e do domínio para evitar bloqueios e inclusão em listas negras.
-        Implementar ferramentas adicionais de proteção contra anexos maliciosos e links suspeitos.
+          // --- Adiciona rodapé e numeração real de página em cada página ---
+          const totalPages = pdf.internal.getNumberOfPages();
+          for (let i = 1; i <= totalPages; i++) {
+            pdf.setPage(i);
+            pdf.setFontSize(8);
+            pdf.text(footer, 8, pageHeight - 10);
+            pdf.text(`https://${footer}.com.br`, 8, pageHeight - 5);
+            pdf.text(`${i}`, pageWidth - 10, pageHeight - 5, { align: "right" });
+          }
 
-        5.CONCLUSÃO
-        A análise dos e-mails do Sebrae através do MailInspector identificou [resumo das principais descobertas]. Embora [indicar se há boa conformidade ou vulnerabilidades críticas], algumas melhorias são recomendadas para reforçar a segurança e garantir a autenticidade das comunicações por e-mail.
+          // --- Preenche o Sumário (página 2) com os itens de TOC ---
+          pdf.setPage(2);
+          pdf.setFont("helvetica", "normal");
+          pdf.setFontSize(12);
+          let tocY = 40; // Começa logo abaixo do título "Sumário"
+          tocItems.forEach(item => {
+            pdf.text(item.title, 20, tocY);
+            pdf.text(String(item.page), pageWidth - 20, tocY, { align: "right" });
+            tocY += 10;
+          });
 
-        Caso as recomendações não sejam implementadas, o Sebrae pode estar sujeito a riscos como fraudes, interceptação de e-mails e comprometimento da reputação do domínio.
-
-        Recomendamos a adoção das ações propostas e a realização de análises periódicas para garantir a segurança contínua dos e-mails corporativos.
-        `;
-        pdf.text(introText3, 20, 50, { maxWidth: pageWidth - 40 });
-        pdf.text(footer, 8, pageHeight - 10);
-        pdf.text(`https://${footer}.com.br`, 8, pageHeight - 6);
-        pdf.text("3", pageWidth - 10, pageHeight - 5);
-
-          // Salva o PDF depois de processar todos os arquivos
+          // --- Salva o PDF ---
           pdf.save("documento.pdf");
         } catch (err) {
           console.error("Erro ao gerar o PDF:", err);
         }
-
       });
 
-      // Configuração do Vue para pré-definir os valores dos inputs de texto
+      // Configuração do Vue para pré-definir os valores dos inputs e perfis
       const app = Vue.createApp({
         data() {
           return {
+            selectedProfile: "VILTI", // Perfil padrão
+            profiles: {
+              VILTI: {
+                clientName: "SEBRAE",
+                project: "SEBRAE",
+                owner: "Gabriel S Valença",
+                title: "MailInspector (HSC)",
+                footer: "VILTI",
+                headerColor: [0, 102, 204]  // Azul
+              },
+              Drax: {
+                clientName: "Teste",
+                project: "Teste",
+                owner: "Gabriel S Valença",
+                title: "MailInspector (HSC)",
+                footer: "DraxTec",
+                headerColor: [204, 0, 0]  // Vermelho
+              }
+            },
             clientName: "SEBRAE",
             project: "SEBRAE",
-            owner: "Gabriel Souza Valença",
-            title: "MAILINSPECTOR (HSC)",
-            footer: "VILTI "
+            owner: "Gabriel S Valença",
+            title: "MailInspector (HSC)",
+            footer: "VILTI"
           };
+        },
+        watch: {
+          selectedProfile(newProfile) {
+            const profile = this.profiles[newProfile];
+            if (profile) {
+              this.clientName = profile.clientName;
+              this.project = profile.project;
+              this.owner = profile.owner;
+              this.title = profile.title;
+              this.footer = profile.footer;
+            }
+          }
         }
       });
       app.mount("#app");
+
+      // Função auxiliar para adicionar imagem (usada para dados, se necessário)
+      function addImageToPDF(file, x, y, maxWidth, maxHeight) {
+        return new Promise((resolve, reject) => {
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+              const img = new Image();
+              img.src = event.target.result;
+              img.onload = function () {
+                const aspectRatio = img.width / img.height;
+                let width = maxWidth;
+                let height = maxHeight;
+                if (img.width > img.height) {
+                  height = width / aspectRatio;
+                } else {
+                  width = height * aspectRatio;
+                }
+                pdf.addImage(event.target.result, "PNG", x, y, width, height);
+                resolve();
+              };
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          } else {
+            resolve();
+          }
+        });
+      }
     </script>
   </body>
 </html>
