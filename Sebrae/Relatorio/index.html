@@ -35,58 +35,56 @@
 
     <div id="app" class="container mx-auto p-4">
         <div class="flex justify-between items-center bg-white rounded-lg shadow-lg p-4">
-            <div class="text-4xl">Gerador de PDF</div>
+            <div class="text-4xl font-bold">📄 Gerador de PDF</div>
             <button id="downloadPdf" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
               Baixar PDF
             </button>
         </div>
           
         <div class="bg-white rounded-lg shadow-lg p-4 m-6">
-            <h2 class="flex justify-center items-centertext-xl font-semibold mb-4">Configuração do Documento</h2>
-            <div class="overflow-x-auto">
-                <div id="form-container" class="grid grid-cols-2 gap-4">
-                    <!-- Campo de seleção de perfil -->
-                    <div>
-                      <label class="block text-sm font-medium">Perfil</label>
-                      <select v-model="selectedProfile" class="w-full border rounded p-2">
-                        <option value="VILTI">VILTI</option>
-                        <option value="Drax">Drax</option>
-                      </select>
-                    </div>
-                            <div>
-                      <label class="block text-sm font-medium">Title</label>
-                      <input type="text" id="title" v-model="title" class="w-full border rounded p-2" />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium">Company Logo</label>
-                      <input type="file" id="companyLogo" class="w-full border rounded p-2" />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium">Client Logo</label>
-                      <input type="file" id="clientLogo" class="w-full border rounded p-2" />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium">Client Name</label>
-                      <input type="text" id="clientName" v-model="clientName" class="w-full border rounded p-2" />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium">Project</label>
-                      <input type="text" id="project" v-model="project" class="w-full border rounded p-2" />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium">Owner</label>
-                      <input type="text" id="owner" v-model="owner" class="w-full border rounded p-2" />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium">Footer</label>
-                      <input type="text" id="footer" v-model="footer" class="w-full border rounded p-2" />
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium">Arquivo CSV</label>
-                      <input type="file" id="csvFile" class="w-full border rounded p-2" />
-                    </div>
-                  </div>
-            </div>
+            <h2 class="text-xl font-semibold mb-4">Configuração do Documento</h2>
+      <div id="form-container" class="grid grid-cols-1 gap-4">
+        <!-- Campo de seleção de perfil -->
+        <div>
+          <label class="block text-sm font-medium">Perfil</label>
+          <select v-model="selectedProfile" class="w-full border rounded p-2">
+            <option value="VILTI">VILTI</option>
+            <option value="Drax">Drax</option>
+          </select>
+        </div>
+                <div>
+          <label class="block text-sm font-medium">Title</label>
+          <input type="text" id="title" v-model="title" class="w-full border rounded p-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Company Logo</label>
+          <input type="file" id="companyLogo" class="w-full border rounded p-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Client Logo</label>
+          <input type="file" id="clientLogo" class="w-full border rounded p-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Client Name</label>
+          <input type="text" id="clientName" v-model="clientName" class="w-full border rounded p-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Project</label>
+          <input type="text" id="project" v-model="project" class="w-full border rounded p-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Owner</label>
+          <input type="text" id="owner" v-model="owner" class="w-full border rounded p-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Footer</label>
+          <input type="text" id="footer" v-model="footer" class="w-full border rounded p-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Arquivo CSV</label>
+          <input type="file" id="csvFile" class="w-full border rounded p-2" />
+        </div>
+      </div>
         </div>
     </div>
 
@@ -654,8 +652,8 @@
             selectedProfile: "VILTI", // Perfil padrão
             profiles: {
               VILTI: {
-                companyLogo: "https://raw.githubusercontent.com/GabValenca/Prod/9360aafcd7cd663118dd511b2cc83bf99a7615a5/Sebrae/Relatorio/VILTI/Transparente.png",
-                clientLogo: "https://raw.githubusercontent.com/GabValenca/Prod/9360aafcd7cd663118dd511b2cc83bf99a7615a5/Sebrae/Relatorio/VILTI/Sebrae.png",
+                companyLogo: "https://raw.githubusercontent.com/GabValenca/Prod/main/Sebrae/Relatorio/VILTI/Transparente.png",
+                clientLogo: "https://raw.githubusercontent.com/GabValenca/Prod/main/Sebrae/Relatorio/VILTI/Sebrae.png",
                 clientName: "SEBRAE",
                 project: "SEBRAE",
                 owner: "Gabriel S Valença",
