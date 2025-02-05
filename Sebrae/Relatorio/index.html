@@ -17,6 +17,13 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+      body {
+        background-image: url('https://raw.githubusercontent.com/GabValenca/Prod/blob/4ea28798af91c4d81689670a030b209ea6e9e197/Sebrae/Relatorio/DRAX/Drax-Wallpaper.jpeg?raw=true');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+
       @media print {
         #form-container {
           display: none;
@@ -24,78 +31,75 @@
       }
     </style>
   </head>
-  <body class="bg-gray-50 flex">
-    <!-- Sidebar -->
-    <aside class="w-64 h-screen bg-gray-800 text-white fixed flex flex-col items-center p-4">
-      <div class="text-4xl">Gerador de PDF</div>
-      <nav class="mt-6 w-full">
-        <ul class="space-y-4 text-lg">
-          <li><a href="#" class="block p-2 rounded hover:bg-gray-700">Início</a></li>
-          <li><a href="#" class="block p-2 rounded hover:bg-gray-700">Calculadora</a></li>
-          <li><a href="#" class="block p-2 rounded hover:bg-gray-700">Configurações</a></li>
-        </ul>
-        <button id="downloadPdf" class="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
-          Baixar PDF
-        </button>
-      </nav>
-    </aside>
+  <body class="bg-blue-500 flex">
 
-    <!-- Formulário de Entrada (envolvido pelo Vue) -->
-    <div id="app" class="ml-64 p-6 bg-white shadow-lg rounded-lg">
-      <h2 class="text-xl font-semibold mb-4">Configuração do Documento</h2>
-      <div id="form-container" class="grid grid-cols-1 gap-4">
-        <!-- Campo de seleção de perfil -->
-        <div>
-          <label class="block text-sm font-medium">Perfil</label>
-          <select v-model="selectedProfile" class="w-full border rounded p-2">
-            <option value="VILTI">VILTI</option>
-            <option value="Drax">Drax</option>
-          </select>
+    <div id="app" class="container mx-auto p-4">
+        <div class="flex justify-between items-center bg-white rounded-lg shadow-lg p-4">
+            <div class="text-4xl">Gerador de PDF</div>
+            <button id="downloadPdf" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+              Baixar PDF
+            </button>
         </div>
-        <div>
-          <label class="block text-sm font-medium">Company Logo</label>
-          <input type="file" id="companyLogo" class="w-full border rounded p-2" />
+          
+        <div class="bg-white rounded-lg shadow-lg p-4 m-6">
+            <h2 class="flex justify-center items-centertext-xl font-semibold mb-4">Configuração do Documento</h2>
+            <div class="overflow-x-auto">
+                <div id="form-container" class="grid grid-cols-2 gap-4">
+                    <!-- Campo de seleção de perfil -->
+                    <div>
+                      <label class="block text-sm font-medium">Perfil</label>
+                      <select v-model="selectedProfile" class="w-full border rounded p-2">
+                        <option value="VILTI">VILTI</option>
+                        <option value="Drax">Drax</option>
+                      </select>
+                    </div>
+                            <div>
+                      <label class="block text-sm font-medium">Title</label>
+                      <input type="text" id="title" v-model="title" class="w-full border rounded p-2" />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium">Company Logo</label>
+                      <input type="file" id="companyLogo" class="w-full border rounded p-2" />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium">Client Logo</label>
+                      <input type="file" id="clientLogo" class="w-full border rounded p-2" />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium">Client Name</label>
+                      <input type="text" id="clientName" v-model="clientName" class="w-full border rounded p-2" />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium">Project</label>
+                      <input type="text" id="project" v-model="project" class="w-full border rounded p-2" />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium">Owner</label>
+                      <input type="text" id="owner" v-model="owner" class="w-full border rounded p-2" />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium">Footer</label>
+                      <input type="text" id="footer" v-model="footer" class="w-full border rounded p-2" />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium">Arquivo CSV</label>
+                      <input type="file" id="csvFile" class="w-full border rounded p-2" />
+                    </div>
+                  </div>
+            </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium">Client Logo</label>
-          <input type="file" id="clientLogo" class="w-full border rounded p-2" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Client Name</label>
-          <input type="text" id="clientName" v-model="clientName" class="w-full border rounded p-2" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Project</label>
-          <input type="text" id="project" v-model="project" class="w-full border rounded p-2" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Owner</label>
-          <input type="text" id="owner" v-model="owner" class="w-full border rounded p-2" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Title</label>
-          <input type="text" id="title" v-model="title" class="w-full border rounded p-2" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Footer</label>
-          <input type="text" id="footer" v-model="footer" class="w-full border rounded p-2" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Arquivo CSV</label>
-          <input type="file" id="csvFile" class="w-full border rounded p-2" />
-        </div>
-      </div>
     </div>
 
     <script>
+      // Função para formatar números com separador de milhares (ex.: 9090 → "9.090")
+      function formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      }
+
       document.getElementById("downloadPdf").addEventListener("click", async function () {
         try {
           const { jsPDF } = window.jspdf;
-          const pdf = new jsPDF({
-            orientation: "portrait",
-            unit: "mm",
-            format: "a4"
-          });
+          const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
           const pageWidth = pdf.internal.pageSize.getWidth();
           const pageHeight = pdf.internal.pageSize.getHeight();
 
@@ -153,7 +157,7 @@
           const currentProfile = app._instance.data.selectedProfile;
           const headerColor = app._instance.data.profiles[currentProfile].headerColor;
 
-          // Função auxiliar para adicionar o company logo
+          // --- Processamento do Company Logo ---
           let companyLogoData = null;
           let companyLogoDimensions = null;
           const companyLogoInput = document.getElementById("companyLogo").files[0];
@@ -181,9 +185,35 @@
               reader.onerror = reject;
               reader.readAsDataURL(companyLogoInput);
             });
+          } else if (!companyLogoInput && currentProfile === "VILTI" && app._instance.data.profiles.VILTI.companyLogo) {
+            const defaultCompanyUrl = app._instance.data.profiles.VILTI.companyLogo;
+            const response = await fetch(defaultCompanyUrl);
+            const blob = await response.blob();
+            await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = function (event) {
+                companyLogoData = event.target.result;
+                const img = new Image();
+                img.onload = function () {
+                  const aspectRatio = img.width / img.height;
+                  let width = 40, height = 20;
+                  if (img.width > img.height) { height = width / aspectRatio; } 
+                  else { width = height * aspectRatio; }
+                  companyLogoDimensions = { width, height };
+                  pdf.addImage(companyLogoData, "PNG", 10, 10, width, height);
+                  resolve();
+                };
+                img.onerror = reject;
+                img.src = companyLogoData;
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
           }
 
-          // *** NOVO: Adiciona o client logo na primeira página, se existir ***
+          // --- Processamento do Client Logo ---
+          let clientLogoData = null;
+          let clientLogoDimensions = null;
           const clientLogoInput = document.getElementById("clientLogo").files[0];
           if (clientLogoInput) {
             await new Promise((resolve, reject) => {
@@ -191,16 +221,15 @@
               reader.onload = function (event) {
                 const img = new Image();
                 img.onload = function () {
-                  // Define dimensões para o client logo (ajuste conforme necessário)
                   let width = 50, height = 30;
                   const aspectRatio = img.width / img.height;
-                  if (img.width > img.height) {
-                    height = width / aspectRatio;
-                  } else {
-                    width = height * aspectRatio;
-                  }
-                  // Adiciona o client logo na primeira página; posicionado no canto superior direito
-                  pdf.addImage(event.target.result, "PNG", (pageWidth - 50) / 2, pageHeight / 2, 50, 30);
+                  if (img.width > img.height) { height = width / aspectRatio; }
+                  else { width = height * aspectRatio; }
+                  clientLogoData = event.target.result;
+                  clientLogoDimensions = { width, height };
+                  // Posiciona o client logo no canto superior direito da capa
+                  // Aqui, ajustamos a posição conforme necessário. Exemplo: 10 mm de margem à direita.
+                  pdf.addImage(clientLogoData, "PNG", (pageWidth - 50) / 2, pageHeight / 2, 50, 30);
                   resolve();
                 };
                 img.src = event.target.result;
@@ -208,8 +237,32 @@
               reader.onerror = reject;
               reader.readAsDataURL(clientLogoInput);
             });
+          } else if (!clientLogoInput && currentProfile === "VILTI" && app._instance.data.profiles.VILTI.clientLogo) {
+            const defaultClientUrl = app._instance.data.profiles.VILTI.clientLogo;
+            const response = await fetch(defaultClientUrl);
+            const blob = await response.blob();
+            await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = function (event) {
+                clientLogoData = event.target.result;
+                const img = new Image();
+                img.onload = function () {
+                  let width = 50, height = 30;
+                  const aspectRatio = img.width / img.height;
+                  if (img.width > img.height) { height = width / aspectRatio; } 
+                  else { width = height * aspectRatio; }
+                  clientLogoDimensions = { width, height };
+                  pdf.addImage(clientLogoData, "PNG", (pageWidth - 50) / 2, pageHeight / 2, 50, 30);
+                  resolve();
+                };
+                img.onerror = reject;
+                img.src = event.target.result;
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
           }
-          // Fim da inclusão do client logo
+          // Fim do processamento dos logos
 
           // Função para adicionar uma nova página com o company logo (usada nas páginas de conteúdo)
           function addPageWithLogo() {
@@ -242,7 +295,6 @@
           // PÁGINA 2: SUMÁRIO
           // ========================
           pdf.addPage(); // Cria a página de sumário (página 2)
-          // Nesta página, adiciona o company logo (se existir) e o título "Sumário"
           if (companyLogoData && companyLogoDimensions) {
             pdf.addImage(companyLogoData, "PNG", 10, 10, companyLogoDimensions.width, companyLogoDimensions.height);
           }
@@ -283,7 +335,7 @@
           const introText24 = `Verificação de links maliciosos e anexos suspeitos.`; 
           const introText25 = `Avaliação de tentativas de spoofing e engenharia social.`; 
 
-          pdf.text(introText10, 20, 50, { maxWidth: pageWidth - 40});
+          pdf.text(introText10, 20, 50, { maxWidth: pageWidth - 40 });
           pdf.text(introText111, 20, 55, { maxWidth: pageWidth - 40, align: "justify" });
           pdf.text(introText112, 20, 85, { maxWidth: pageWidth - 40, align: "justify" });
           pdf.text(introText113, 20, 115, { maxWidth: pageWidth - 40, align: "justify" });
@@ -439,6 +491,7 @@
                         const xLabels = modifiedChartTableData.map(row => row[0]);
                         const datasets = [];
                         for (let col = 1; col < modifiedHeaderCells.length; col++) {
+                          if (modifiedHeaderCells[col].trim() === "Volume") continue;
                           const dataArr = modifiedChartTableData.map(row => Number(row[col]));
                           const datasetColor = colorPalette[(col - 1) % colorPalette.length];
                           datasets.push({
@@ -454,6 +507,7 @@
                         const xLabels = chartTableData.map(row => row[0]);
                         const datasets = [];
                         for (let col = 1; col < headerCells.length; col++) {
+                          if (headerCells[col].trim() === "Volume") continue;
                           if (i === 0 && (col === 1 || col === 2)) continue;
                           const dataArr = chartTableData.map(row => Number(row[col]));
                           const datasetColor = colorPalette[(col - 1) % colorPalette.length];
@@ -493,10 +547,17 @@
                               const imageURL = chartInstance.toBase64Image();
                               addPageWithLogo();
                               pdf.addImage(imageURL, "PNG", 15, 25, 180, 120);
+                              // Formata os números da tabela usando a função formatNumber
+                              const formattedTableData = tableData.map(row =>
+                                row.map(cell => {
+                                  const n = parseFloat(cell);
+                                  return isNaN(n) ? cell : formatNumber(n);
+                                })
+                              );
                               pdf.autoTable({
                                 startY: 150,
                                 head: [headerCells],
-                                body: tableData,
+                                body: formattedTableData,
                                 theme: "grid",
                                 styles: { fontSize: 5 },
                                 headStyles: { fillColor: headerColor },
@@ -572,7 +633,7 @@
           pdf.setPage(2);
           pdf.setFont("helvetica", "normal");
           pdf.setFontSize(12);
-          let tocY = 40; // Começa logo abaixo do título "Sumário"
+          let tocY = 40;
           tocItems.forEach(item => {
             pdf.text(item.title, 20, tocY);
             pdf.text(String(item.page), pageWidth - 20, tocY, { align: "right" });
@@ -593,8 +654,8 @@
             selectedProfile: "VILTI", // Perfil padrão
             profiles: {
               VILTI: {
-                companyLogo: "https://raw.githubusercontent.comGabValenca/Prod/blob/9360aafcd7cd663118dd511b2cc83bf99a7615a5/Sebrae/Relatorio/VILTI/Transparente.png",
-                clientLogo: "https://raw.githubusercontent.com/GabValenca/Prod/blob/9360aafcd7cd663118dd511b2cc83bf99a7615a5/Sebrae/Relatorio/VILTI/Sebrae.png",
+                companyLogo: "https://raw.githubusercontent.com/GabValenca/Prod/9360aafcd7cd663118dd511b2cc83bf99a7615a5/Sebrae/Relatorio/VILTI/Transparente.png",
+                clientLogo: "https://raw.githubusercontent.com/GabValenca/Prod/9360aafcd7cd663118dd511b2cc83bf99a7615a5/Sebrae/Relatorio/VILTI/Sebrae.png",
                 clientName: "SEBRAE",
                 project: "SEBRAE",
                 owner: "Gabriel S Valença",
