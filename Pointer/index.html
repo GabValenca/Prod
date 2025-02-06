@@ -1,260 +1,392 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐕</text></svg>">
-    <title>Calculadora de Preços - Atividade Noturna</title>
-    <meta name="description" content="Calculadora de preços para serviços de Atividade Noturna e Sobreaviso">
-    <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐕</text></svg>">
+  <title>Calculadora de Preços - Atividade Noturna</title>
+  <meta name="description" content="Calculadora de preços para serviços de Atividade Noturna e Sobreaviso">
+  <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 flex">
-    <!-- Sidebar -->
-    <aside class="w-64 h-screen bg-blue-950 text-white fixed flex flex-col items-center p-4">
-        <div class="text-4xl"><img src="https://pointertech.digital/assets/LOGO_TAG_FUNDO_AZUL-xrB-CNDi.png" alt="Italian Trulli"></div> <!-- Logo -->
-        <nav class="mt-6 w-full">
-            <ul class="space-y-4 text-lg">
-                <li><a href="#" @click.prevent="currentPage = 'inicio';" class="block p-2 rounded hover:bg-gray-700">Início</a></li>
-                <li><a href="#" @click.prevent="currentPage = 'calculadora';" class="block p-2 rounded hover:bg-gray-700">Calculadora</a></li>
-                <!-- <li><a href="#" @click.prevent="currentPage = 'certificacao';" class="block p-2 rounded hover:bg-gray-700">Certificação</a></li>-->
-                <!-- <li><a href="#" @click.prevent="currentPage = 'configuracao';" class="block p-2 rounded hover:bg-gray-700">Configurações</a></li>-->
-            </ul>
-        </nav>
-    </aside>
-
-    <!-- Conteúdo Principal -->
-     <div id="app" class="container mx-auto p-4 ml-64">
-        <div v-if="currentPage === 'inicio'" >
-            
-        </div>
-
-        <div v-if="currentPage === 'calculadora'" > <!-- Adicionei margem para não sobrepor a sidebar -->
-            <div class="w-full mx-auto bg-white rounded-lg shadow-lg p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-bold">Calculadora de Horas de Serviço</h1>
-                    <div class="text-xl font-bold">Total: {{ formatCurrency(total) }}</div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-                    <div></div>
-                    <div></div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Número de Clientes</label>
-                        <select v-model="clientRange" class="w-full border rounded p-2">
-                            <option value="1 a 20">1 a 20</option>
-                            <option value="21 a 50">21 a 50</option>
-                            <option value="51 a 100">51 a 100</option>
-                            <option value="101 a 200">101 a 200</option>
-                            <option value="201 a 500">201 a 500</option>
-                            <option value="501 a 1000">501 a 1.000</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Total de Horas</label>
-                        <input type="number" v-model.number="hours" class="w-full border rounded p-2">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Tipo de Serviço</label>
-                        <select v-model="serviceType" class="w-full border rounded p-2">
-                            <option value="suporte">Suporte</option>
-                            <option value="installation">Instalação</option>
-                            <option value="Treinamento">Treinamento</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex items-center grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div v-for="(profile, index) in profiles" :key="index" class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg m-2 p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-lg font-semibold mb-2">Perfil {{ index + 1 }}</h2>
-                    <button @click="removeProfile(index)" class="mt-4 bg-red-500 text-white rounded-full h-10 w-10 flex items-center justify-center">-</button>          
-                </div>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2">Perfil</label>
-                        <select v-model="profile.type" class="w-full border rounded p-2">
-                            <option value="operator">Operador</option>
-                            <option value="analyst1">Analista N1</option>
-                            <option value="analyst2">Analista N2</option>
-                            <option value="analyst3">Analista N3</option>
-                            <option value="specialist">Especialista</option>
-                        </select>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="block text-sm font-medium">Atividade Noturna</label>
-                            <input type="number" v-model.number="profile.nortuna" class="w-full border rounded p-2">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium">Sobreaviso</label>
-                            <input type="number" v-model.number="profile.standby" class="w-full border rounded p-2">
-                        </div>
-                    </div>
-
-                    <div class="mt-6">
-                        <label class="block text-sm font-medium mb-2">Descrição</label>
-                        <textarea v-model="profile.description" class="w-full border rounded p-2" rows="3"></textarea>
-                    </div>
-
-                    <div class="mt-6 p-4 bg-gray-100 rounded">
-                        <h2 class="font-semibold mb-2">Cálculo:</h2>
-                        <p>Base ({{ profileLabel(profile.type) }}) = {{ formatCurrency(baseRate(profile.type)) }}</p>
-                        <p>{{ formatCurrency(baseRate(profile.type)) }} * {{clientRate(clientRange)}} (Número de Clientes ({{ clientRange }}))</p>
-                        <p>{{ formatCurrency(baseRate(profile.type)*clientRate(clientRange))}} * {{ hours }} (Horas)</p>
-                        <p>{{ formatCurrency((baseRate(profile.type)*clientRate(clientRange))*hours)}} * {{serviceRate(serviceType)}} ({{serviceType}})</p>
-                        <p>Total: {{ formatCurrency(((baseRate(profile.type)*clientRate(clientRange))*hours)*serviceRate(serviceType))}}</p>
-                        <br>
-                        <p>Ativ. Noturna (25%): {{ profile.nortuna }} * {{ formatCurrency(baseRate(profile.type)* 1.25) }} = {{ formatCurrency(profile.nortuna * baseRate(profile.type)) }}</p>
-                        <p>Sobreaviso (33%): {{ profile.standby }} * {{ formatCurrency(baseRate(profile.type) * 1.33) }} = {{ formatCurrency(profile.standby * baseRate(profile.type)) }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="flex justify-center mt-4">
-                <button @click="addProfile" class="bg-green-500 text-white px-4 py-2 rounded">Adicionar Perfil</button>
-            </div>
-        </div>
-
-        <div v-if="currentPage === 'certificacao'" >
-            <div class="w-full mx-auto bg-white rounded-lg shadow-lg p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-bold">Certificação</h1>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Nome</label>
-                        <input type="text" v-model.number="nome" class="w-full border rounded p-2">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Curso</label>
-                        <input type="text" v-model.number="curso" class="w-full border rounded p-2">
-                    </div>
-                    <div class="flex justify-center mt-4">
-                        <button @click="addProfile" class="bg-green-500 text-white px-4 py-2 rounded">Imprimir</button>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Número de Clientes</label>
-                        <select v-model="clientRange" class="w-full border rounded p-2">
-                            <option value="1 a 20">1 a 20</option>
-                            <option value="21 a 50">21 a 50</option>
-                            <option value="51 a 100">51 a 100</option>
-                            <option value="101 a 200">101 a 200</option>
-                            <option value="201 a 500">201 a 500</option>
-                            <option value="501 a 1000">501 a 1.000</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Total de Horas</label>
-                        <input type="number" v-model.number="hours" class="w-full border rounded p-2">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Logo Empresa</label>
-                        <input type="file" id="companyLogo" class="w-full border rounded p-2">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Provedor</label>
-                        <input type="file" id="provedorLogo" class="w-full border rounded p-2">
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Descrição</label>
-                        <input type="text" id="project" class="w-full border rounded p-2">
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex items-center grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                </div>
-            </div>
-        </div>
-
-        <div v-if="currentPage === 'configuracao'">
-        </div>
+  <!-- Sidebar -->
+  <aside class="w-64 h-screen bg-blue-950 text-white fixed flex flex-col items-center p-4">
+    <div class="text-4xl">
+      <img src="https://pointertech.digital/assets/LOGO_TAG_FUNDO_AZUL-xrB-CNDi.png" alt="Logo Pointer">
     </div>
-    <script>
-        const { createApp } = Vue;
+    <nav class="mt-6 w-full">
+      <ul class="space-y-4 text-lg">
+        <li>
+          <a href="#" @click.prevent="currentPage = 'inicio';" class="block p-2 rounded hover:bg-gray-700">
+            Início
+          </a>
+        </li>
+        <li>
+          <a href="#" @click.prevent="currentPage = 'calculadora';" class="block p-2 rounded hover:bg-gray-700">
+            Calculadora
+          </a>
+        </li>
+        <!-- Outras páginas podem ser adicionadas -->
+      </ul>
+      <!-- Botão para download do CSV -->
+      <button id="downloadCsv" class="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 flex justify-center">
+        Baixar CSV
+      </button>
+    </nav>
+  </aside>
 
-        createApp({
-            data() {
-                return {
-                    currentPage: 'calculadora', // Página inicial
-                    clientRange: '',
-                    hours: 0,
-                    serviceType: '',
-                    profiles: [
-                        { type: 'operator', nortuna: 0, standby: 0, description: '' }
-                    ]
-                };
-            },
-            computed: {
-                total() {
-                    return this.profiles.reduce((sum, profile) => {
-                        return sum + (((this.baseRate(profile.type) * this.clientRate(this.clientRange)) * this.hours) * this.serviceRate(this.serviceType)) 
-                                    + (profile.nortuna * this.baseRate(profile.type)) 
-                                    + (profile.standby * this.baseRate(profile.type));
-                    }, 0);
-                }
-            },
-            methods: {
-                baseRate(type) {
-                    const rates = {
-                        'operator': 23.54,
-                        'analyst1': 53.10,
-                        'analyst2': 69.94,
-                        'analyst3': 110.32,
-                        'specialist': 180.11
-                    };
-                    return rates[type] || 0;
-                },
-                clientRate(type) {
-                    const rates = {
-                        '1 a 20': 1,
-                        '21 a 50': 1.05,
-                        '51 a 100': 1.1,
-                        '101 a 200': 1.15,
-                        '201 a 500': 1.2,
-                        '501 a 1000': 1.25
-                    };
-                    return rates[type] || 1;
-                },
-                serviceRate(type) {
-                    const rates = {
-                        'suporte': 1,
-                        'installation': 2,
-                        'Treinamento': 5
-                    };
-                    return rates[type] || 1;
-                },
-                profileLabel(type) {
-                    const labels = {
-                        'operator': 'Operador',
-                        'analyst1': 'Analista N1',
-                        'analyst2': 'Analista N2',
-                        'analyst3': 'Analista N3',
-                        'specialist': 'Especialista'
-                    };
-                    return labels[type] || 'Operador';
-                },
-                formatCurrency(value) {
-                    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                },
-                addProfile() {
-                    this.profiles.push({ type: 'operator', nortuna: 0, standby: 0, description: '' });
-                },
-                removeProfile(index) {
-                    if (this.profiles.length > 1) {
-                        this.profiles.splice(index, 1);
-                    }
-                }
-            }
-        }).mount('#app');
-    </script>
+  <!-- Conteúdo Principal -->
+  <div id="app" class="container mx-auto p-4 ml-64">
+    <div v-if="currentPage === 'inicio'">
+      <!-- Conteúdo da página de início -->
+    </div>
+
+    <div v-if="currentPage === 'calculadora'">
+      <div class="w-full mx-auto bg-white rounded-lg shadow-lg p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-bold">Calculadora de Horas de Serviço</h1>
+          <div>
+            <div class="text-xl font-bold">Total Mensal: {{ formatCurrency(total) }}</div>
+            <div class="text-xl font-bold">Total Anual: {{ formatCurrency(total * 12) }}</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+          <div>
+            <label class="block text-sm font-medium mb-1">Nome do Cliente</label>
+            <input type="text" v-model="cliente" class="w-full border rounded p-2">
+          </div>
+          <div></div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Número de Clientes</label>
+            <select v-model="clientRange" class="w-full border rounded p-2">
+              <option value="1 a 20">1 a 20</option>
+              <option value="21 a 50">21 a 50</option>
+              <option value="51 a 100">51 a 100</option>
+              <option value="101 a 200">101 a 200</option>
+              <option value="201 a 500">201 a 500</option>
+              <option value="501 a 1000">501 a 1.000</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Total de Horas</label>
+            <input type="number" v-model.number="hours" class="w-full border rounded p-2">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Tipo de Serviço</label>
+            <select v-model="serviceType" class="w-full border rounded p-2">
+              <option value="suporte">Suporte</option>
+              <option value="installation">Instalação</option>
+              <option value="Treinamento">Treinamento</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div v-for="(profile, index) in profiles" :key="index" class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg m-2 p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-semibold mb-2">Perfil {{ index + 1 }}</h2>
+            <button @click="removeProfile(index)" class="mt-4 bg-red-500 text-white rounded-full h-10 w-10 flex items-center justify-center">
+              -
+            </button>          
+          </div>
+          <div class="mb-6">
+            <label class="block text-sm font-medium mb-2">Perfil</label>
+            <select v-model="profile.type" class="w-full border rounded p-2">
+              <option value="operator">Operador</option>
+              <option value="analyst1">Analista N1</option>
+              <option value="analyst2">Analista N2</option>
+              <option value="analyst3">Analista N3</option>
+              <option value="specialist">Especialista</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-medium">Atividade Noturna</label>
+              <input type="number" v-model.number="profile.nortuna" class="w-full border rounded p-2">
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Sobreaviso</label>
+              <input type="number" v-model.number="profile.standby" class="w-full border rounded p-2">
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <label class="block text-sm font-medium mb-2">Descrição</label>
+            <textarea v-model="profile.description" class="w-full border rounded p-2" rows="3"></textarea>
+          </div>
+
+          <div class="mt-6 p-4 bg-gray-100 rounded">
+            <h2 class="font-semibold mb-2">Cálculo:</h2>
+            <p>Base ({{ profileLabel(profile.type) }}) = {{ formatCurrency(baseRate(profile.type)) }}</p>
+            <p>{{ formatCurrency(baseRate(profile.type)) }} * {{ clientRate(clientRange) }} (Número de Clientes ({{ clientRange }}))</p>
+            <p>{{ formatCurrency(baseRate(profile.type) * clientRate(clientRange)) }} * {{ hours }} (Horas)</p>
+            <p>{{ formatCurrency((baseRate(profile.type) * clientRate(clientRange)) * hours) }} * {{ serviceRate(serviceType) }} ({{ serviceType }})</p>
+            <p>Total: {{ formatCurrency(((baseRate(profile.type) * clientRate(clientRange)) * hours) * serviceRate(serviceType)) }}</p>
+            <br>
+            <p>Ativ. Noturna (25%): {{ profile.nortuna }} * {{ formatCurrency(baseRate(profile.type) * 1.25) }} = {{ formatCurrency((profile.nortuna * baseRate(profile.type)) * 1.25) }}</p>
+            <p>Sobreaviso (33%): {{ profile.standby }} * {{ formatCurrency(baseRate(profile.type) * 1.33) }} = {{ formatCurrency((profile.standby * baseRate(profile.type)) * 1.33) }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-center mt-4">
+        <button @click="addProfile" class="bg-green-500 text-white px-4 py-2 rounded">
+          Adicionar Perfil
+        </button>
+      </div>
+    </div>
+
+    <div v-if="currentPage === 'certificacao'">
+      <div class="w-full mx-auto bg-white rounded-lg shadow-lg p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-bold">Certificação</h1>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div>
+            <label class="block text-sm font-medium mb-1">Nome</label>
+            <input type="text" v-model.number="nome" class="w-full border rounded p-2">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Curso</label>
+            <input type="text" v-model.number="curso" class="w-full border rounded p-2">
+          </div>
+          <div class="flex justify-center mt-4">
+            <button @click="addProfile" class="bg-green-500 text-white px-4 py-2 rounded">
+              Imprimir
+            </button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div>
+            <label class="block text-sm font-medium mb-1">Número de Clientes</label>
+            <select v-model="clientRange" class="w-full border rounded p-2">
+              <option value="1 a 20">1 a 20</option>
+              <option value="21 a 50">21 a 50</option>
+              <option value="51 a 100">51 a 100</option>
+              <option value="101 a 200">101 a 200</option>
+              <option value="201 a 500">201 a 500</option>
+              <option value="501 a 1000">501 a 1.000</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Total de Horas</label>
+            <input type="number" v-model.number="hours" class="w-full border rounded p-2">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-1">Logo Empresa</label>
+            <input type="file" id="companyLogo" class="w-full border rounded p-2">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Provedor</label>
+            <input type="file" id="provedorLogo" class="w-full border rounded p-2">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
+          <div>
+            <label class="block text-sm font-medium mb-1">Descrição</label>
+            <input type="text" id="project" class="w-full border rounded p-2">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <!-- Conteúdo extra, se necessário -->
+      </div>
+    </div>
+
+    <div v-if="currentPage === 'configuracao'">
+      <!-- Conteúdo de Configurações -->
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          currentPage: 'calculadora', // Página inicial
+          cliente: '',
+          clientRange: '1 a 20',
+          hours: 0,
+          serviceType: 'suporte',
+          profiles: [
+            { type: 'operator', nortuna: 0, standby: 0, description: '' }
+          ]
+        };
+      },
+      computed: {
+        total() {
+          return this.profiles.reduce((sum, profile) => {
+            const profileTotal = ((this.baseRate(profile.type) * this.clientRate(this.clientRange)) * this.hours * this.serviceRate(this.serviceType))
+              + ((profile.nortuna * this.baseRate(profile.type)) * 1.25)
+              + ((profile.standby * this.baseRate(profile.type)) * 1.33);
+            return sum + profileTotal;
+          }, 0);
+        }
+      },
+      methods: {
+        baseRate(type) {
+          const rates = {
+            'operator': 23.54,
+            'analyst1': 53.10,
+            'analyst2': 69.94,
+            'analyst3': 110.32,
+            'specialist': 180.11
+          };
+          return rates[type] || 0;
+        },
+        clientRate(range) {
+          const rates = {
+            '1 a 20': 1,
+            '21 a 50': 1.05,
+            '51 a 100': 1.1,
+            '101 a 200': 1.15,
+            '201 a 500': 1.2,
+            '501 a 1000': 1.25
+          };
+          return rates[range] || 1;
+        },
+        serviceRate(type) {
+          const rates = {
+            'suporte': 1,
+            'installation': 2,
+            'Treinamento': 5
+          };
+          return rates[type] || 1;
+        },
+        profileLabel(type) {
+          const labels = {
+            'operator': 'Operador',
+            'analyst1': 'Analista N1',
+            'analyst2': 'Analista N2',
+            'analyst3': 'Analista N3',
+            'specialist': 'Especialista'
+          };
+          return labels[type] || 'Operador';
+        },
+        formatCurrency(value) {
+          return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        },
+        addProfile() {
+          this.profiles.push({ type: 'operator', nortuna: 0, standby: 0, description: '' });
+        },
+        removeProfile(index) {
+          if (this.profiles.length > 1) {
+            this.profiles.splice(index, 1);
+          }
+        },
+        downloadCSV() {
+          // Define o nome do arquivo
+          const fileName = `(POINTER) ${this.cliente} - Calculadora de serviço.csv`;
+
+          // Cabeçalho dos dados dos perfis
+          const serviceHeader = [
+            "Cliente",
+            "Usuarios Cliente",
+            "Horas",
+            "Tipo de Servico",
+            "Valor Mensal",
+            "Valor Anual"
+          ].join(";");
+
+          // Linha de informações gerais do serviço
+          const serviceRow = [
+            this.cliente,
+            this.clientRange,
+            this.hours,
+            this.serviceType,
+            this.total.toFixed(2),
+            (this.total * 12).toFixed(2)
+          ].join(";");
+
+          // Linha separadora
+          const dashedLine = "-;-;-;-;-;-;";
+
+          // Cabeçalho dos dados dos perfis
+          const profileHeader = [
+            "Perfil",
+            "Base",
+            "Parcial",
+            "Atividade Noturna",
+            "Sobreaviso",
+            "Descricao",
+            "Atividade Noturna",
+            "Sobreaviso",
+            "Total Parcial"
+          ].join(";");
+
+          // Linhas com os dados de cada perfil
+          const profileRows = this.profiles.map(profile => {
+            const calculatedNoturna = (profile.nortuna * this.baseRate(profile.type) * 1.25).toFixed(2);
+            const calculatedStandby = (profile.standby * this.baseRate(profile.type) * 1.33).toFixed(2);
+            // Cálculo da base (antes da formatação)
+            const baseCalculation = this.baseRate(profile.type) *
+                                    this.clientRate(this.clientRange) *
+                                    this.hours *
+                                    this.serviceRate(this.serviceType);
+            // Arredondando a base para 2 casas decimais (convertido para número)
+            const baseRounded = parseFloat(baseCalculation.toFixed(2));
+
+            // Cálculo da Atividade Noturna
+            const noturnaCalc = profile.nortuna * this.baseRate(profile.type) * 1.25;
+            const noturnaRounded = parseFloat(noturnaCalc.toFixed(2));
+
+            // Cálculo do Sobreaviso
+            const standbyCalc = profile.standby * this.baseRate(profile.type) * 1.33;
+            const standbyRounded = parseFloat(standbyCalc.toFixed(2));
+
+            // Soma de forma numérica
+            const profileCalculate = baseRounded + noturnaRounded + standbyRounded;
+
+            // Caso queira formatar a saída como string, use toFixed() somente aqui:
+            const profileCalculateFormatted = profileCalculate.toFixed(2);
+            
+            return [
+              this.profileLabel(profile.type),
+              this.baseRate(profile.type),
+              baseRounded,
+              profile.nortuna,
+              profile.standby,
+              profile.description,
+              calculatedNoturna,
+              calculatedStandby,
+              profileCalculateFormatted
+            ].join(";");
+          });
+
+          // Junta todas as linhas com quebras de linha
+          const csvContent = [serviceHeader,serviceRow, dashedLine, profileHeader, ...profileRows].join("\n");
+
+          // Cria um Blob com o conteúdo CSV e inicia o download
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement("a");
+          if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", fileName);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } else if (navigator.msSaveBlob) {
+            navigator.msSaveBlob(blob, fileName);
+          }
+        }
+      },
+      mounted() {
+        // Vincula o evento de download ao botão fora do container Vue
+        const downloadBtn = document.getElementById('downloadCsv');
+        if (downloadBtn) {
+          downloadBtn.addEventListener('click', this.downloadCSV);
+        }
+      }
+    }).mount('#app');
+  </script>
 </body>
 </html>
