@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐕</text></svg>">
+  <title>Calculadora de Preços - Atividade Noturna</title>
+  <meta name="description" content="Calculadora de preços para serviços de Atividade Noturna e Sobreaviso">
+  <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+  <!-- Botão fixo no canto superior esquerdo para executar o comando -->
+  <button id="runCommand" 
+          style="position: fixed; top: 10px; left: 10px; z-index: 10000; color: white; padding: 8px 12px; border: none; border-radius: 4px; font-weight: bold;">
+  </button>
+
+  <!-- Sidebar -->
+  <aside class="w-64 h-screen bg-blue-950 text-white fixed flex flex-col items-center p-4">
+    <div class="text-4xl">
+      <img src="https://pointertech.digital/assets/LOGO_TAG_FUNDO_AZUL-xrB-CNDi.png" alt="Logo Pointer">
+    </div>
+    <nav class="mt-6 w-full">
+      <ul class="space-y-4 text-lg">
+        <li>
+          <a href="index.html" class="block p-2 rounded hover:bg-gray-700">Início</a>
+        </li>
+        <li>
+          <a href="calculadora.html" class="block p-2 rounded hover:bg-gray-700">Calculadora</a>
+        </li>
+        <li>
+          <a href="certificacao.html" class="block p-2 rounded hover:bg-gray-700">Certificação</a>
+        </li>
+        <li>
+          <a href="#" class="block p-2 rounded hover:bg-gray-700">Configuração</a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Conteúdo Principal (onde a aplicação Vue está montada) -->
+  <div id="app" class="container mx-auto p-4 ml-64 max-w-6xl">
+    <!-- Página Certificação -->
+    <div>
+      <div class="w-full mx-auto bg-white rounded-lg shadow-lg p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-bold">Certificação</h1>
+        </div>
+        <!-- Primeira linha: Categoria, Nome do Curso e Horas do Curso -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <!-- Campo Categoria -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Categoria</label>
+              <select v-model="categoria" class="w-full border rounded p-2">
+                <option value="SUSE">SUSE</option>
+                <option value="GitLab">GitLab</option>
+              </select>
+            </div>
+            <!-- Campo Nome do Curso (opções dinâmicas) -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Nome do Curso</label>
+              <select v-model="nome_do_curso" class="w-full border rounded p-2">
+                <option v-for="option in nome_do_curso_options" :key="option" :value="option">{{ option }}</option>
+              </select>
+            </div>
+            <!-- Campo Horas do Curso -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Horas do Curso</label>
+              <input type="number" v-model.number="horas_curso" class="w-full border rounded p-2" />
+            </div>
+          </div>
+          <!-- Segunda linha: Nome do Cliente, Logo do Cliente e Time do Cliente -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <!-- Campo Nome do Cliente -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Nome do Cliente</label>
+              <input type="text" v-model="nome_cliente_cert" class="w-full border rounded p-2" />
+            </div>
+            <!-- Campo Logo do Cliente -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Logo do Cliente</label>
+              <input type="file" @change="handleLogoCliente" accept=".jpg,.jpeg,.png" class="w-full border rounded p-2" />
+            </div>
+            <!-- Campo Time do Cliente -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Time do Cliente</label>
+              <input type="file" @change="handleTimeCliente" accept=".csv" class="w-full border rounded p-2" />
+            </div>
+          </div>
+          <!-- Terceira linha: Descrição do Curso -->
+          <div class="grid grid-cols-1 gap-4 mb-6">
+            <div>
+              <label class="block text-sm font-medium mb-1">Descrição do Curso</label>
+              <textarea v-model="descricao_curso" class="w-full border rounded p-2" rows="3"></textarea>
+            </div>
+          </div>
+        <div class="flex justify-center mt-4">
+          <button @click="submitCertificacao" class="bg-green-500 text-white px-4 py-2 rounded">
+            Enviar Certificação
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          // Dados para Certificação
+          categoria: "", // Valor inicial para disparar a lógica (pode ser alterado)
+          nome_do_curso: '',
+          nome_do_curso_options: [], // Será atualizado conforme a categoria
+          descricao_curso: '',
+          horas_curso: 0,
+          nome_cliente_cert: '',
+          logo_cliente: null,
+          time_cliente: null
+        };
+      },
+      watch: {
+        // Atualiza as opções de nome_do_curso conforme a categoria selecionada
+        categoria(newVal) {
+          if(newVal === "GitLab") {
+            this.nome_do_curso_options = ["GitLab Fundations", "GitLab Advanced"];
+            this.nome_do_curso = this.nome_do_curso_options[0];
+          } else if(newVal === "SUSE" || newVal === "Rancher") {
+            this.nome_do_curso_options = ["Rancher"];
+            this.nome_do_curso = "Rancher";
+          }
+        },
+        // Se o nome do curso for "GitLab Fundations", preenche automaticamente os demais campos
+        nome_do_curso(newVal) {
+          if(newVal === "GitLab Fundations") {
+            this.descricao_curso = "Esse curso contempla o básico de GitLab para o meio corporativo";
+            this.horas_curso = 20;
+          } else if(newVal === "GitLab Advanced") {
+            this.descricao_curso = "Esse curso contempla o avançado de GitLab para o meio corporativo";
+            this.horas_curso = 40;
+          } else if(newVal === "Rancher") {
+            this.descricao_curso = "Esse curso contempla o avançado de Rancher para o meio corporativo";
+            this.horas_curso = 15;
+          }
+        }
+      },
+      methods: {
+        handleLogoCliente(event) {
+          const file = event.target.files[0];
+          this.logo_cliente = file;
+        },
+        handleTimeCliente(event) {
+          const file = event.target.files[0];
+          this.time_cliente = file;
+        },
+        submitCertificacao() {
+          // Aqui você pode processar ou enviar os dados conforme necessário
+          console.log("Categoria:", this.categoria);
+          console.log("Nome do Curso:", this.nome_do_curso);
+          console.log("Descrição do Curso:", this.descricao_curso);
+          console.log("Horas do Curso:", this.horas_curso);
+          console.log("Nome do Cliente:", this.nome_cliente_cert);
+          console.log("Logo do Cliente:", this.logo_cliente);
+          console.log("Time do Cliente:", this.time_cliente);
+          alert("Dados da Certificação enviados (verifique o console)!");
+        }
+      },
+      mounted() {
+        const downloadBtn = document.getElementById('downloadCsv');
+        if (downloadBtn) {
+          downloadBtn.addEventListener('click', this.downloadCSV);
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
