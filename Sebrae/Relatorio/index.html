@@ -220,7 +220,7 @@
               reader.onerror = reject;
               reader.readAsDataURL(blob);
             });
-          } else if (!companyLogoInput && currentProfile === "Drax" && app._instance.data.profiles.Drax.companyLogo) {
+          } else (!companyLogoInput && currentProfile === "Drax" && app._instance.data.profiles.Drax.companyLogo) {
             const defaultCompanyUrl = app._instance.data.profiles.Drax.companyLogo;
             const response = await fetch(defaultCompanyUrl);
             const blob = await response.blob();
@@ -294,7 +294,7 @@
               reader.onerror = reject;
               reader.readAsDataURL(blob);
             });
-          } else if (!clientLogoInput && currentProfile === "Drax" && app._instance.data.profiles.Drax.clientLogo) {
+          } else (!clientLogoInput && currentProfile === "Drax" && app._instance.data.profiles.Drax.clientLogo) {
             const defaultClientUrl = app._instance.data.profiles.Drax.clientLogo;
             const response = await fetch(defaultClientUrl);
             const blob = await response.blob();
