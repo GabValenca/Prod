@@ -34,10 +34,6 @@
           <a href="#" class="block p-2 rounded hover:bg-gray-700">Configuração</a>
         </li>
       </ul>
-      <!-- Botão para download do CSV -->
-      <button id="downloadCsv" class="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 flex justify-center w-full">
-        Baixar CSV
-      </button>
     </nav>
   </aside>
 
@@ -62,7 +58,6 @@
             <label class="block text-sm font-medium mb-1">Nome do Cliente</label>
             <input type="text" v-model="cliente" class="w-full border rounded p-2">
           </div>
-          <div></div>
           <div>
             <label class="block text-sm font-medium mb-1">Número de Clientes</label>
             <select v-model="clientRange" class="w-full border rounded p-2">
@@ -85,6 +80,12 @@
               <option value="installation">Instalação</option>
               <option value="Treinamento">Treinamento</option>
             </select>
+          </div>
+          <div>
+            <!-- Botão para download do CSV -->
+            <button id="downloadCsv" class="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 flex justify-center w-full">
+              Baixar CSV
+            </button>
           </div>
         </div>
       </div>
