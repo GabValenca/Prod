@@ -37,7 +37,7 @@
       }
     </style>
   </head>
-  <body class="bg-gray-50 flex">
+  <body class="bg-gray-50">
     <!-- Sidebar -->
     <aside class="w-32 h-screen text-white fixed flex flex-col items-center p-4">
       <div class="text-4xl ml-4">Gerador de PDF 📄</div>
@@ -54,53 +54,59 @@
     </aside>
 
     <!-- Formulário de Entrada (Vue) -->
-    <div id="app" class="ml-40 p-6 bg-white shadow-lg rounded-lg">
-      <h2 class="text-xl font-semibold mb-4">Configuração do Documento</h2>
-      <div id="form-container" class="grid grid-cols-1 gap-4">
-        <!-- Campo de seleção de perfil -->
-        <div>
-          <label class="block text-sm font-medium">Perfil</label>
-          <select v-model="selectedProfile" class="w-full border rounded p-2">
-            <option value="VILTI">VILTI</option>
-            <option value="Drax">Drax</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Title</label>
-          <input type="text" id="title" v-model="title" class="w-full border rounded p-2" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Company Logo</label>
-          <input type="file" id="companyLogo" class="w-full border rounded p-2" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Client Logo</label>
-          <input type="file" id="clientLogo" class="w-full border rounded p-2" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Client Name</label>
-          <input type="text" id="clientName" v-model="clientName" class="w-full border rounded p-2" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Project</label>
-          <input type="text" id="project" v-model="project" class="w-full border rounded p-2" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Owner</label>
-          <input type="text" id="owner" v-model="owner" class="w-full border rounded p-2" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Footer</label>
-          <input type="text" id="footer" v-model="footer" class="w-full border rounded p-2" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium">Arquivo CSV</label>
-          <input type="file" id="csvFile" class="w-full border rounded p-2" />
+    <div class="flex">
+      <div id="app" class="ml-40 p-6 bg-white shadow-lg rounded-lg" style="margin-right: -5px;margin-bottom: -70px;">
+        <h2 class="text-xl font-semibold mb-4">Configuração do Documento</h2>
+        <div id="form-container" class="grid grid-cols-1 gap-4">
+          <!-- Campo de seleção de perfil -->
+          <div>
+            <label class="block text-sm font-medium">Perfil</label>
+            <select v-model="selectedProfile" class="w-full border rounded p-2">
+              <option value="VILTI">VILTI</option>
+              <option value="Drax">Drax</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Title</label>
+            <input type="text" id="title" v-model="title" class="w-full border rounded p-2" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Company Logo</label>
+            <input type="file" id="companyLogo" class="w-full border rounded p-2" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Client Logo</label>
+            <input type="file" id="clientLogo" class="w-full border rounded p-2" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Client Name</label>
+            <input type="text" id="clientName" v-model="clientName" class="w-full border rounded p-2" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Project</label>
+            <input type="text" id="project" v-model="project" class="w-full border rounded p-2" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Owner</label>
+            <input type="text" id="owner" v-model="owner" class="w-full border rounded p-2" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Footer</label>
+            <input type="text" id="footer" v-model="footer" class="w-full border rounded p-2" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Arquivo CSV</label>
+            <input type="file" id="csvFile" class="w-full border rounded p-2" />
+          </div>
         </div>
       </div>
     </div>
     <footer>
-      <p class="font-medium py-6 flex-end items-center justify-center"><a target="_blank" rel="noopener noreferrer" href="https://www.blackparrot.com.br/">Desenvolvido por BlackParrot®</a></p> 
+      <p class="flex items-end justify-center font-medium p-6 ml-80 text-white">
+        <a target="_blank" rel="noopener noreferrer" href="https://www.blackparrot.com.br/">
+          Desenvolvido por BlackParrot®
+        </a>
+      </p> 
     </footer>
 
     <script>
