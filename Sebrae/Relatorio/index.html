@@ -3,8 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DRAX - Gerarador de PDF</title>
-    <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/GabValenca/Prod/main/Sebrae/Relatorio/DRAX/Drax-cores.ico">
+    <title>Gerar PDF</title>
     <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- jsPDF AutoTable -->
@@ -132,10 +131,11 @@
               .replace(/ConteÃºdo/g, "Conteúdo")
               .replace(/ProvÃ¡vel/g, "Provável")
               .replace(/Prov√É¬°vel/g, "Provável")
-              .replace(/V√É¬≠rus/g, "Vírus")
-              .replace(/VÃ-rus/g, "Vírus")
-              .replace(/Vã-rus/g, "Vírus")
-              .replace(/VÃrus/g, "Vírus")
+              .replace(/V√É¬≠rus/g, "Virus")
+              .replace(/VÃ[\-–]?rus/gi, "Virus")
+              .replace(/VÃ-rus/g, "Virus")
+              .replace(/Vã-rus/g, "Virus")
+              .replace(/VÃ­rus/g, "Virus")
               .replace(/ApariÃ§Ã£o/g, "Aparição")
               .replace(/Email Impostor/g, "Impostor")
               .replace(/'/g, "");
@@ -173,7 +173,9 @@
           let companyLogoData = null;
           let companyLogoDimensions = null;
           const companyLogoInput = document.getElementById("companyLogo").files[0];
+
           if (companyLogoInput) {
+            // Se o usuário escolheu um arquivo, utiliza-o
             await new Promise((resolve, reject) => {
               const reader = new FileReader();
               reader.onload = function (event) {
@@ -191,65 +193,50 @@
                   pdf.addImage(companyLogoData, "PNG", 10, 10, width, height);
                   resolve();
                 };
+                img.onerror = reject;
                 img.src = event.target.result;
               };
               reader.onerror = reject;
               reader.readAsDataURL(companyLogoInput);
             });
-          } else if (!companyLogoInput && currentProfile === "VILTI" && app._instance.data.profiles.VILTI.companyLogo) {
-            const defaultCompanyUrl = app._instance.data.profiles.VILTI.companyLogo;
-            const response = await fetch(defaultCompanyUrl);
-            const blob = await response.blob();
-            await new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = function (event) {
-                companyLogoData = event.target.result;
-                const img = new Image();
-                img.onload = function () {
-                  const aspectRatio = img.width / img.height;
-                  let width = 40, height = 20;
-                  if (img.width > img.height) { height = width / aspectRatio; } 
-                  else { width = height * aspectRatio; }
-                  companyLogoDimensions = { width, height };
-                  pdf.addImage(companyLogoData, "PNG", 10, 10, width, height);
-                  resolve();
+          } else {
+            // Se não houver arquivo enviado, utiliza a URL padrão definida no perfil atual (caso exista)
+            const defaultCompanyLogoUrl = app._instance.data.profiles[currentProfile].companyLogo;
+            if (defaultCompanyLogoUrl) {
+              const response = await fetch(defaultCompanyLogoUrl);
+              const blob = await response.blob();
+              await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                  companyLogoData = event.target.result;
+                  const img = new Image();
+                  img.onload = function () {
+                    const aspectRatio = img.width / img.height;
+                    let width = 40, height = 20;
+                    if (img.width > img.height) {
+                      height = width / aspectRatio;
+                    } else {
+                      width = height * aspectRatio;
+                    }
+                    companyLogoDimensions = { width, height };
+                    pdf.addImage(companyLogoData, "PNG", 10, 10, width, height);
+                    resolve();
+                  };
+                  img.onerror = reject;
+                  img.src = companyLogoData;
                 };
-                img.onerror = reject;
-                img.src = companyLogoData;
-              };
-              reader.onerror = reject;
-              reader.readAsDataURL(blob);
-            });
-          } else (!companyLogoInput && currentProfile === "Drax" && app._instance.data.profiles.Drax.companyLogo) {
-            const defaultCompanyUrl = app._instance.data.profiles.Drax.companyLogo;
-            const response = await fetch(defaultCompanyUrl);
-            const blob = await response.blob();
-            await new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = function (event) {
-                companyLogoData = event.target.result;
-                const img = new Image();
-                img.onload = function () {
-                  const aspectRatio = img.width / img.height;
-                  let width = 40, height = 20;
-                  if (img.width > img.height) { height = width / aspectRatio; } 
-                  else { width = height * aspectRatio; }
-                  companyLogoDimensions = { width, height };
-                  pdf.addImage(companyLogoData, "PNG", 10, 10, width, height);
-                  resolve();
-                };
-                img.onerror = reject;
-                img.src = companyLogoData;
-              };
-              reader.onerror = reject;
-              reader.readAsDataURL(blob);
-            });
-          } 
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              });
+            }
+          }
+
 
           // --- Processamento do Client Logo ---
           let clientLogoData = null;
           let clientLogoDimensions = null;
           const clientLogoInput = document.getElementById("clientLogo").files[0];
+
           if (clientLogoInput) {
             await new Promise((resolve, reject) => {
               const reader = new FileReader();
@@ -258,67 +245,53 @@
                 img.onload = function () {
                   let width = 50, height = 30;
                   const aspectRatio = img.width / img.height;
-                  if (img.width > img.height) { height = width / aspectRatio; }
-                  else { width = height * aspectRatio; }
+                  if (img.width > img.height) {
+                    height = width / aspectRatio;
+                  } else {
+                    width = height * aspectRatio;
+                  }
                   clientLogoData = event.target.result;
                   clientLogoDimensions = { width, height };
                   pdf.addImage(clientLogoData, "PNG", (pageWidth - 50) / 2, pageHeight / 2, 50, 30);
                   resolve();
                 };
+                img.onerror = reject;
                 img.src = event.target.result;
               };
               reader.onerror = reject;
               reader.readAsDataURL(clientLogoInput);
             });
-          } else if (!clientLogoInput && currentProfile === "VILTI" && app._instance.data.profiles.VILTI.clientLogo) {
-            const defaultClientUrl = app._instance.data.profiles.VILTI.clientLogo;
-            const response = await fetch(defaultClientUrl);
-            const blob = await response.blob();
-            await new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = function (event) {
-                clientLogoData = event.target.result;
-                const img = new Image();
-                img.onload = function () {
-                  let width = 50, height = 30;
-                  const aspectRatio = img.width / img.height;
-                  if (img.width > img.height) { height = width / aspectRatio; } 
-                  else { width = height * aspectRatio; }
-                  clientLogoDimensions = { width, height };
-                  pdf.addImage(clientLogoData, "PNG", (pageWidth - 50) / 2, pageHeight / 2, 50, 30);
-                  resolve();
+          } else {
+            const defaultClientLogoUrl = app._instance.data.profiles[currentProfile].clientLogo;
+            if (defaultClientLogoUrl) {
+              const response = await fetch(defaultClientLogoUrl);
+              const blob = await response.blob();
+              await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                  clientLogoData = event.target.result;
+                  const img = new Image();
+                  img.onload = function () {
+                    let width = 50, height = 30;
+                    const aspectRatio = img.width / img.height;
+                    if (img.width > img.height) {
+                      height = width / aspectRatio;
+                    } else {
+                      width = height * aspectRatio;
+                    }
+                    clientLogoDimensions = { width, height };
+                    pdf.addImage(clientLogoData, "PNG", (pageWidth - 50) / 2, pageHeight / 2, 50, 30);
+                    resolve();
+                  };
+                  img.onerror = reject;
+                  img.src = clientLogoData;
                 };
-                img.onerror = reject;
-                img.src = event.target.result;
-              };
-              reader.onerror = reject;
-              reader.readAsDataURL(blob);
-            });
-          } else (!clientLogoInput && currentProfile === "Drax" && app._instance.data.profiles.Drax.clientLogo) {
-            const defaultClientUrl = app._instance.data.profiles.Drax.clientLogo;
-            const response = await fetch(defaultClientUrl);
-            const blob = await response.blob();
-            await new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = function (event) {
-                clientLogoData = event.target.result;
-                const img = new Image();
-                img.onload = function () {
-                  let width = 50, height = 30;
-                  const aspectRatio = img.width / img.height;
-                  if (img.width > img.height) { height = width / aspectRatio; } 
-                  else { width = height * aspectRatio; }
-                  clientLogoDimensions = { width, height };
-                  pdf.addImage(clientLogoData, "PNG", (pageWidth - 50) / 2, pageHeight / 2, 50, 30);
-                  resolve();
-                };
-                img.onerror = reject;
-                img.src = event.target.result;
-              };
-              reader.onerror = reject;
-              reader.readAsDataURL(blob);
-            });
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              });
+            }
           }
+
           // Fim do processamento dos logos
 
           // Função para adicionar uma nova página com o company logo (para as páginas de conteúdo)
@@ -509,6 +482,21 @@
                     }
 
                     // Remoções específicas para outros gráficos (exemplos)
+                    if (chartMapping[i].title === "Volume de Mensagens por Data") {
+                      // Removemos a decima sexta coluna (índice 14)
+                      if (headerCells.length > 14) {
+                        headerCells.splice(14, 1);
+                      } else {
+                        console.warn("Cabeçalho insuficiente para 'Volume de Mensagens por Data'", headerCells);
+                      }
+                      tableData.forEach(row => {
+                        if (row.length > 14) {
+                          row.splice(14, 1);
+                        } else {
+                          console.warn("Linha insuficiente em 'Volume de Mensagens por Data'", row);
+                        }
+                      });
+                    }
                     if (chartMapping[i].title === "Top E-mail Relays") {
                       // Removemos a quarta coluna (índice 3)
                       if (headerCells.length > 3) {
@@ -771,8 +759,8 @@
             selectedProfile: "VILTI",
             profiles: {
               VILTI: {
-                companyLogo: "https://raw.githubusercontent.com/GabValenca/Prod/9360aafcd7cd663118dd511b2cc83bf99a7615a5/Sebrae/Relatorio/VILTI/Transparente.png",
-                clientLogo: "https://raw.githubusercontent.com/GabValenca/Prod/9360aafcd7cd663118dd511b2cc83bf99a7615a5/Sebrae/Relatorio/VILTI/Sebrae.png",
+                companyLogo: "https://raw.githubusercontent.com/GabValenca/Prod/main/Sebrae/Relatorio/VILTI/Transparente.png",
+                clientLogo: "https://raw.githubusercontent.com/GabValenca/Prod/main/Sebrae/Relatorio/VILTI/Sebrae.png",
                 clientName: "SEBRAE",
                 project: "SEBRAE",
                 owner: "Gleisson Farias",
@@ -781,14 +769,13 @@
                 headerColor: [0, 102, 204]
               },
               Drax: {
-                companyLogo: "https://raw.githubusercontent.com/GabValenca/Prod/9360aafcd7cd663118dd511b2cc83bf99a7615a5/Sebrae/Relatorio/DRAX/logo-versao-cores.png",
-                clientLogo: "https://raw.githubusercontent.com/GabValenca/Prod/9360aafcd7cd663118dd511b2cc83bf99a7615a5/Sebrae/Relatorio/VILTI/Sebrae.png",
+                companyLogo: "https://raw.githubusercontent.com/GabValenca/Prod/main/Sebrae/Relatorio/DRAX/logo-versao-cores.png",
                 clientName: "Teste",
                 project: "Teste",
                 owner: "Gleisson Farias",
                 title: "MailInspector (HSC)",
                 footer: "DraxTec",
-                headerColor: [204, 0, 0]
+                headerColor: [50, 175, 182]
               }
             },
             clientName: "SEBRAE",
