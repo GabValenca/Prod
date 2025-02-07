@@ -9,7 +9,12 @@
   <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 flex">
+<body class="bg-gray-50">
+  <!-- Botão fixo no canto superior esquerdo para executar o comando -->
+  <button id="runCommand" 
+          style="position: fixed; top: 10px; left: 10px; z-index: 10000; color: white; padding: 8px 12px; border: none; border-radius: 4px; font-weight: bold;">
+  </button>
+
   <!-- Sidebar -->
   <aside class="w-64 h-screen bg-blue-950 text-white fixed flex flex-col items-center p-4">
     <div class="text-4xl">
@@ -27,16 +32,15 @@
             Calculadora
           </a>
         </li>
-        <!-- Outras páginas podem ser adicionadas -->
       </ul>
       <!-- Botão para download do CSV -->
-      <button id="downloadCsv" class="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 flex justify-center">
+      <button id="downloadCsv" class="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 flex justify-center w-full">
         Baixar CSV
       </button>
     </nav>
   </aside>
 
-  <!-- Conteúdo Principal -->
+  <!-- Conteúdo Principal (onde a aplicação Vue está montada) -->
   <div id="app" class="container mx-auto p-4 ml-64">
     <div v-if="currentPage === 'inicio'">
       <!-- Conteúdo da página de início -->
@@ -283,10 +287,8 @@
           }
         },
         downloadCSV() {
-          // Define o nome do arquivo
           const fileName = `(POINTER) ${this.cliente} - Calculadora de serviço.csv`;
 
-          // Cabeçalho dos dados dos perfis
           const serviceHeader = [
             "Cliente",
             "Usuarios Cliente",
@@ -296,7 +298,6 @@
             "Valor Anual"
           ].join(";");
 
-          // Linha de informações gerais do serviço
           const serviceRow = [
             this.cliente,
             this.clientRange,
@@ -306,10 +307,8 @@
             (this.total * 12).toFixed(2)
           ].join(";");
 
-          // Linha separadora
           const dashedLine = "-;-;-;-;-;-;";
 
-          // Cabeçalho dos dados dos perfis
           const profileHeader = [
             "Perfil",
             "Base",
@@ -322,30 +321,19 @@
             "Total Parcial"
           ].join(";");
 
-          // Linhas com os dados de cada perfil
           const profileRows = this.profiles.map(profile => {
             const calculatedNoturna = (profile.nortuna * this.baseRate(profile.type) * 1.25).toFixed(2);
             const calculatedStandby = (profile.standby * this.baseRate(profile.type) * 1.33).toFixed(2);
-            // Cálculo da base (antes da formatação)
             const baseCalculation = this.baseRate(profile.type) *
                                     this.clientRate(this.clientRange) *
                                     this.hours *
                                     this.serviceRate(this.serviceType);
-            // Arredondando a base para 2 casas decimais (convertido para número)
             const baseRounded = parseFloat(baseCalculation.toFixed(2));
-
-            // Cálculo da Atividade Noturna
             const noturnaCalc = profile.nortuna * this.baseRate(profile.type) * 1.25;
             const noturnaRounded = parseFloat(noturnaCalc.toFixed(2));
-
-            // Cálculo do Sobreaviso
             const standbyCalc = profile.standby * this.baseRate(profile.type) * 1.33;
             const standbyRounded = parseFloat(standbyCalc.toFixed(2));
-
-            // Soma de forma numérica
             const profileCalculate = baseRounded + noturnaRounded + standbyRounded;
-
-            // Caso queira formatar a saída como string, use toFixed() somente aqui:
             const profileCalculateFormatted = profileCalculate.toFixed(2);
             
             return [
@@ -361,10 +349,7 @@
             ].join(";");
           });
 
-          // Junta todas as linhas com quebras de linha
-          const csvContent = [serviceHeader,serviceRow, dashedLine, profileHeader, ...profileRows].join("\n");
-
-          // Cria um Blob com o conteúdo CSV e inicia o download
+          const csvContent = [serviceHeader, serviceRow, dashedLine, profileHeader, ...profileRows].join("\n");
           const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
           const link = document.createElement("a");
           if (link.download !== undefined) {
@@ -380,13 +365,224 @@
         }
       },
       mounted() {
-        // Vincula o evento de download ao botão fora do container Vue
         const downloadBtn = document.getElementById('downloadCsv');
         if (downloadBtn) {
           downloadBtn.addEventListener('click', this.downloadCSV);
         }
       }
     }).mount('#app');
+
+    // Função que executa o código do jogo ASCII dentro da div #app
+    function runGameCommand() {
+      // Usa o container existente com id "app"
+      const container = document.getElementById('app');
+      if (!container) {
+        console.error("Elemento com id 'app' não encontrado!");
+        return;
+      }
+      
+      // Bloqueia o scroll da página
+      document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', function(e) {
+        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+      
+      // Aplica estilos para que o container ocupe a área visível (com margem)
+      container.style.backgroundColor = 'black';
+      container.style.color = 'white';
+      container.style.fontFamily = 'monospace';
+      container.style.whiteSpace = 'pre';
+      container.style.padding = '5px';
+      // Removendo classes que possam interferir (por exemplo, padding ou margin do Vue)
+      
+      const gameWidth = window.innerWidth + 20;
+      const gameHeight = window.innerHeight + 20;
+      container.style.width = gameWidth + "px";
+      container.style.height = gameHeight + "px";
+      
+      // Limpa o conteúdo atual
+      while (container.firstChild) {
+        container.removeChild(container.firstChild);
+      }
+      
+      // Estima a resolução em caracteres
+      const charWidth = 200;
+      const charHeight = 30;
+      const screenWidth = Math.floor( charWidth);
+      const screenHeight = Math.floor( charHeight);
+      
+      // Dados do jogo
+      const wallShades = ['\u2588','\u2588','\u2593','\u2593','\u2592','\u2592','\u2591','\u2591','.',' '];
+      const floorShades = ['@','%','#','*','+','=','-','.',' '];
+      const ceilingShades = [' ','.','-', '=', '#','%','@'];
+      
+      const mapWidth = 16;
+      const mapHeight = 16;
+      const map = [
+        "################",
+        "#..............#",
+        "#..............#",
+        "#...##...##....#",
+        "#...##...##....#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "#...#######....#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "################"
+      ];
+      
+      // Estado inicial do jogador
+      let playerX = 8;
+      let playerY = 8;
+      let playerAngle = 0;
+      const fov = Math.PI / 4;
+      const depth = 16;
+      
+      let lastTime = performance.now();
+      let fps = 0;
+      
+      // Controle das teclas
+      const keys = {};
+      window.addEventListener('keydown', (e) => { keys[e.key] = true; });
+      window.addEventListener('keyup', (e) => { keys[e.key] = false; });
+      
+      // Loop principal do jogo (raycasting)
+      function gameLoop() {
+        const now = performance.now();
+        const elapsed = now - lastTime;
+        lastTime = now;
+        fps = Math.round(1000 / elapsed);
+        
+        // Atualiza posição e rotação
+        const moveSpeed = 0.1;
+        const rotSpeed = 0.05;
+        if (keys["ArrowLeft"])  playerAngle -= rotSpeed;
+        if (keys["ArrowRight"]) playerAngle += rotSpeed;
+        if (keys["ArrowUp"]) {
+          const newX = playerX + Math.cos(playerAngle) * moveSpeed;
+          const newY = playerY + Math.sin(playerAngle) * moveSpeed;
+          if (map[Math.floor(newY)][Math.floor(newX)] !== '#') {
+            playerX = newX;
+            playerY = newY;
+          }
+        }
+        if (keys["ArrowDown"]) {
+          const newX = playerX - Math.cos(playerAngle) * moveSpeed;
+          const newY = playerY - Math.sin(playerAngle) * moveSpeed;
+          if (map[Math.floor(newY)][Math.floor(newX)] !== '#') {
+            playerX = newX;
+            playerY = newY;
+          }
+        }
+        
+        let output = "";
+        for (let y = 0; y < screenHeight; y++) {
+          for (let x = 0; x < screenWidth; x++) {
+            const rayAngle = (playerAngle - fov / 2) + (x / screenWidth) * fov;
+            let distanceToWall = 0;
+            let hitWall = false;
+            let boundary = false;
+            const eyeX = Math.cos(rayAngle);
+            const eyeY = Math.sin(rayAngle);
+            
+            while (!hitWall && distanceToWall < depth) {
+              distanceToWall += 0.05;
+              const testX = Math.floor(playerX + eyeX * distanceToWall);
+              const testY = Math.floor(playerY + eyeY * distanceToWall);
+              if (testX < 0 || testX >= mapWidth || testY < 0 || testY >= mapHeight) {
+                hitWall = true;
+                distanceToWall = depth;
+              } else {
+                if (map[testY][testX] === '#') {
+                  hitWall = true;
+                  let p = [];
+                  for (let tx = 0; tx < 2; tx++) {
+                    for (let ty = 0; ty < 2; ty++) {
+                      const vx = (testX + tx) - playerX;
+                      const vy = (testY + ty) - playerY;
+                      const d = Math.sqrt(vx * vx + vy * vy);
+                      const dot = (eyeX * vx / d) + (eyeY * vy / d);
+                      p.push([d, dot]);
+                    }
+                  }
+                  p.sort((a, b) => a[0] - b[0]);
+                  const boundAngle = 0.01;
+                  if (Math.acos(p[0][1]) < boundAngle) {
+                    boundary = true;
+                  }
+                }
+              }
+            }
+            
+            let pixel = ' ';
+            const ceiling = Math.floor(screenHeight / 2 - screenHeight / distanceToWall);
+            const floorLine = screenHeight - ceiling;
+            
+            if (y < ceiling) {
+              const t = y / ceiling;
+              let shadeIndex = Math.floor(t * ceilingShades.length);
+              if (shadeIndex < 0) shadeIndex = 0;
+              if (shadeIndex >= ceilingShades.length) shadeIndex = ceilingShades.length - 1;
+              pixel = ceilingShades[shadeIndex];
+            } else if (y >= ceiling && y <= floorLine) {
+              if (boundary) {
+                pixel = '|';
+              } else {
+                const ratio = distanceToWall / depth;
+                let shadeIndex = Math.floor(ratio * wallShades.length);
+                if (shadeIndex < 0) shadeIndex = 0;
+                if (shadeIndex >= wallShades.length) shadeIndex = wallShades.length - 1;
+                pixel = wallShades[shadeIndex];
+              }
+            } else {
+              const b = 1 - ((y - screenHeight / 2) / (screenHeight / 2));
+              let floorIndex = Math.floor(b * floorShades.length);
+              if (floorIndex < 0) floorIndex = 0;
+              if (floorIndex >= floorShades.length) floorIndex = floorShades.length - 1;
+              pixel = floorShades[floorIndex];
+            }
+            output += pixel;
+          }
+          output += "\n";
+        }
+        
+        // HUD e Minimapa
+        let hud = "";
+        hud += "ASCII DOOM  |  FPS: " + fps + "\n";
+        hud += "Posição: (" + playerX.toFixed(2) + ", " + playerY.toFixed(2) + ") | Ângulo: " + (playerAngle * (180/Math.PI)).toFixed(2) + "°\n\n";
+        hud += "MINIMAPA:\n";
+        for (let my = 0; my < mapHeight; my++) {
+          let line = "";
+          for (let mx = 0; mx < mapWidth; mx++) {
+            if (Math.floor(playerY) === my && Math.floor(playerX) === mx) {
+              if (playerAngle >= -0.5 && playerAngle < 0.5) line += "➡️";
+              else if (playerAngle >= 0.5 && playerAngle < 1.5) line += "⬇️";
+              else if (playerAngle >= -1.5 && playerAngle < -0.5) line += "⬆️";
+              else line += "⬅️";
+            } else {
+              line += map[my][mx];
+            }
+          }
+          hud += line + "\n";
+        }
+        output = hud + "\n" + output;
+        container.textContent = output;
+        requestAnimationFrame(gameLoop);
+      }
+      
+      gameLoop();
+    }
+    
+    // Vincula o clique do botão para executar o comando
+    document.getElementById('runCommand').addEventListener('click', runGameCommand);
   </script>
 </body>
 </html>
