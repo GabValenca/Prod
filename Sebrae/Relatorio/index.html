@@ -220,7 +220,30 @@
               reader.onerror = reject;
               reader.readAsDataURL(blob);
             });
-          }
+          } else if (!companyLogoInput && currentProfile === "DRAX" && app._instance.data.profiles.DRAX.companyLogo) {
+            const defaultCompanyUrl = app._instance.data.profiles.DRAX.companyLogo;
+            const response = await fetch(defaultCompanyUrl);
+            const blob = await response.blob();
+            await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = function (event) {
+                companyLogoData = event.target.result;
+                const img = new Image();
+                img.onload = function () {
+                  const aspectRatio = img.width / img.height;
+                  let width = 40, height = 20;
+                  if (img.width > img.height) { height = width / aspectRatio; } 
+                  else { width = height * aspectRatio; }
+                  companyLogoDimensions = { width, height };
+                  pdf.addImage(companyLogoData, "PNG", 10, 10, width, height);
+                  resolve();
+                };
+                img.onerror = reject;
+                img.src = companyLogoData;
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
 
           // --- Processamento do Client Logo ---
           let clientLogoData = null;
