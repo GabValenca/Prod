@@ -78,7 +78,8 @@
             <select v-model="serviceType" class="w-full border rounded p-2">
               <option value="suporte">Suporte</option>
               <option value="installation">Instalação</option>
-              <option value="Treinamento">Treinamento</option>
+              <option value="consultoria">Consultoria</option>
+              <option value="treinamento">Treinamento</option>
             </select>
           </div>
           <div>
@@ -266,7 +267,8 @@
           const rates = {
             'suporte': 1,
             'installation': 2,
-            'Treinamento': 5
+            'consultoria': 3,
+            'treinamento': 5
           };
           return rates[type] || 1;
         },
