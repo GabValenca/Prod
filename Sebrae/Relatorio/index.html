@@ -294,6 +294,30 @@
               reader.onerror = reject;
               reader.readAsDataURL(blob);
             });
+          } else if (!clientLogoInput && currentProfile === "Drax" && app._instance.data.profiles.Drax.clientLogo) {
+            const defaultClientUrl = app._instance.data.profiles.Drax.clientLogo;
+            const response = await fetch(defaultClientUrl);
+            const blob = await response.blob();
+            await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = function (event) {
+                clientLogoData = event.target.result;
+                const img = new Image();
+                img.onload = function () {
+                  let width = 50, height = 30;
+                  const aspectRatio = img.width / img.height;
+                  if (img.width > img.height) { height = width / aspectRatio; } 
+                  else { width = height * aspectRatio; }
+                  clientLogoDimensions = { width, height };
+                  pdf.addImage(clientLogoData, "PNG", (pageWidth - 50) / 2, pageHeight / 2, 50, 30);
+                  resolve();
+                };
+                img.onerror = reject;
+                img.src = event.target.result;
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
           }
           // Fim do processamento dos logos
 
@@ -758,6 +782,7 @@
               },
               Drax: {
                 companyLogo: "https://raw.githubusercontent.com/GabValenca/Prod/9360aafcd7cd663118dd511b2cc83bf99a7615a5/Sebrae/Relatorio/DRAX/logo-versao-cores.png",
+                clientLogo: "https://raw.githubusercontent.com/GabValenca/Prod/9360aafcd7cd663118dd511b2cc83bf99a7615a5/Sebrae/Relatorio/VILTI/Sebrae.png",
                 clientName: "Teste",
                 project: "Teste",
                 owner: "Gleisson Farias",
