@@ -232,14 +232,25 @@
             console.error("Erro ao carregar a imagem de background:", error);
           }
 
+          // Adiciona o logo da Pointer no canto superior esquerdo
+          const pointerLogoUrl = 'https://raw.githubusercontent.com/GabValenca/Prod/main/Pointer/imagens/LOGO_FUNDO_AZUL.png';
+          try {
+            const pointerLogoDataUrl = await getBase64FromUrl(pointerLogoUrl);
+            const pointerLogoWidth = 60;  // ajuste conforme necessário
+            const pointerLogoHeight = 60; // ajuste conforme necessário
+            doc.addImage(pointerLogoDataUrl, 'PNG', 20, 20, pointerLogoWidth, pointerLogoHeight);
+          } catch (error) {
+            console.error("Erro ao carregar o logo da Pointer:", error);
+          }
+
           // Se houver logo do cliente, converte para Base64 e adiciona no canto superior direito
           if (this.logo_cliente) {
             try {
               const logoDataUrl = await getBase64(this.logo_cliente);
               // Determina o tipo da imagem (PNG ou JPEG)
               const imageType = this.logo_cliente.type.includes('png') ? 'PNG' : 'JPEG';
-              const logoWidth = 100;  // ajuste conforme necessário
-              const logoHeight = 50;  // ajuste conforme necessário
+              const logoWidth = 60;  // ajuste conforme necessário
+              const logoHeight = 60; // ajuste conforme necessário
               doc.addImage(logoDataUrl, imageType, pageWidth - logoWidth - 20, 20, logoWidth, logoHeight);
             } catch (error) {
               console.error("Erro ao carregar o logo do cliente:", error);
