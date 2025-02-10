@@ -5,9 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐕</text></svg>">
   <title>Calculadora de Preços - Atividade Noturna</title>
-  <meta name="description" content=" USO INTERNO POINTER  Calculadora de preços para serviços de Atividade Noturna e Sobreaviso">
+  <meta name="description" content="USO INTERNO POINTER  Calculadora de preços para serviços de Atividade Noturna e Sobreaviso">
+  
+  <!-- Vue e Tailwind -->
   <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body class="bg-gray-50">
   <!-- Botão fixo no canto superior esquerdo para executar o comando -->
@@ -48,35 +53,48 @@
         </div>
         <!-- Primeira linha: Categoria, Nome do Curso e Horas do Curso -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <!-- Campo Categoria -->
-            <div>
-              <label class="block text-sm font-medium mb-1">Categoria</label>
-              <select v-model="categoria" class="w-full border rounded p-2">
-                <option value="SUSE">SUSE</option>
-                <option value="GitLab">GitLab</option>
-                <option value="HashiCorp">HashiCorp</option>
-              </select>
-            </div>
-            <!-- Campo Nome do Curso (opções dinâmicas) -->
-            <div>
-              <label class="block text-sm font-medium mb-1">Nome do Curso</label>
-              <select v-model="nome_do_curso" class="w-full border rounded p-2">
-                <option v-for="option in nome_do_curso_options" :key="option" :value="option">{{ option }}</option>
-              </select>
-            </div>
-            <!-- Campo Horas do Curso -->
-            <div>
-              <label class="block text-sm font-medium mb-1">Horas do Curso</label>
-              <input type="number" v-model.number="horas_curso" class="w-full border rounded p-2" />
-            </div>
+          <!-- Campo Categoria -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Categoria</label>
+            <select v-model="categoria" class="w-full border rounded p-2">
+              <option value="SUSE">SUSE</option>
+              <option value="GitLab">GitLab</option>
+              <option value="HashiCorp">HashiCorp</option>
+            </select>
           </div>
-          <!-- Segunda linha: Nome do Cliente, Logo do Cliente e Time do Cliente -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <!-- Campo Nome do Cliente -->
-            <div>
-              <label class="block text-sm font-medium mb-1">Nome do Cliente</label>
-              <input type="text" v-model="nome_cliente_cert" class="w-full border rounded p-2" />
-            </div>
+          <!-- Campo Nome do Curso (opções dinâmicas) -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Nome do Curso</label>
+            <select v-model="nome_do_curso" class="w-full border rounded p-2">
+              <option v-for="option in nome_do_curso_options" :key="option" :value="option">{{ option }}</option>
+            </select>
+          </div>
+          <!-- Campo Horas do Curso -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Horas do Curso</label>
+            <input type="number" v-model.number="horas_curso" class="w-full border rounded p-2" />
+          </div>
+        </div>
+        <!-- Segunda linha: Nome do Cliente, Logo do Cliente e Time do Cliente -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <!-- Campo Nome do Cliente -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Nome do Cliente</label>
+            <input type="text" v-model="nome_cliente_cert" class="w-full border rounded p-2" />
+          </div>
+          <!-- Campo Inicio do Treinamento -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Inicio do Treinamento</label>
+            <input type="date"v-model="data_inicio" class="w-full border rounded p-2" />
+          </div>
+          <!-- Campo Final do Treinamento -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Final do Treinamento</label>
+            <input type="date" v-model="data_final" class="w-full border rounded p-2" />
+          </div>
+        </div>
+         <!-- Segunda linha: Nome do Cliente, Logo do Cliente e Time do Cliente -->
+         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <!-- Campo Logo do Cliente -->
             <div>
               <label class="block text-sm font-medium mb-1">Logo do Cliente</label>
@@ -88,13 +106,13 @@
               <input type="file" @change="handleTimeCliente" accept=".csv" class="w-full border rounded p-2" />
             </div>
           </div>
-          <!-- Terceira linha: Descrição do Curso -->
-          <div class="grid grid-cols-1 gap-4 mb-6">
-            <div>
-              <label class="block text-sm font-medium mb-1">Descrição do Curso</label>
-              <textarea v-model="descricao_curso" class="w-full border rounded p-2" rows="3"></textarea>
-            </div>
+        <!-- Terceira linha: Descrição do Curso -->
+        <div class="grid grid-cols-1 gap-4 mb-6">
+          <div>
+            <label class="block text-sm font-medium mb-1">Descrição do Curso</label>
+            <textarea v-model="descricao_curso" class="w-full border rounded p-2" rows="3"></textarea>
           </div>
+        </div>
         <div class="flex justify-center mt-4">
           <button @click="submitCertificacao" class="bg-green-500 text-white px-4 py-2 rounded">
             Enviar Certificação
@@ -104,8 +122,11 @@
     </div>
   </div>
   <footer>
-      <p class="font-medium py-6 flex items-center justify-center mt-40"><a target="_blank" rel="noopener noreferrer" href="https://www.blackparrot.com.br/">Desenvolvido por BlackParrot®</a></p> 
+    <p class="font-medium py-6 flex items-center justify-center mt-40">
+      <a target="_blank" rel="noopener noreferrer" href="https://www.blackparrot.com.br/">Desenvolvido por BlackParrot®</a>
+    </p> 
   </footer>
+
   <script>
     const { createApp } = Vue;
 
@@ -113,12 +134,14 @@
       data() {
         return {
           // Dados para Certificação
-          categoria: "", // Valor inicial para disparar a lógica (pode ser alterado)
+          categoria: "",
           nome_do_curso: '',
-          nome_do_curso_options: [], // Será atualizado conforme a categoria
+          nome_do_curso_options: [],
           descricao_curso: '',
           horas_curso: 0,
-          nome_cliente_cert: '',
+          nome_cliente_cert: 'Ye',
+          data_inicio: 0,
+          data_final:0,
           logo_cliente: null,
           time_cliente: null
         };
@@ -127,7 +150,7 @@
         // Atualiza as opções de nome_do_curso conforme a categoria selecionada
         categoria(newVal) {
           if(newVal === "GitLab") {
-            this.nome_do_curso_options = ["GitLab Fundations", "GitLab CI/CD Avançado para DevOps","GitLab para Gestão de Projetos Ágeis"];
+            this.nome_do_curso_options = ["GitLab Fundations", "GitLab CI/CD Avançado para DevOps", "GitLab para Gestão de Projetos Ágeis"];
             this.nome_do_curso = this.nome_do_curso_options[0];
           } else if(newVal === "SUSE") {
             this.nome_do_curso_options = ["Gerenciamento de Contêineres com SUSE Rancher", "SUSE Linux Enterprise Server (SLES) para Administradores"];
@@ -137,7 +160,7 @@
             this.nome_do_curso = this.nome_do_curso_options[0];
           }
         },
-        // Se o nome do curso for "GitLab Fundations", preenche automaticamente os demais campos
+        // Preenche automaticamente os demais campos conforme o nome do curso selecionado
         nome_do_curso(newVal) {
           if(newVal === "GitLab Fundations") {
             this.descricao_curso = "Esse curso contempla o básico de GitLab para o meio corporativo";
@@ -154,10 +177,10 @@
           } else if(newVal === "SUSE Linux Enterprise Server (SLES) para Administradores") {
             this.descricao_curso = "Curso focado em administração de servidores SUSE Linux Enterprise, cobrindo instalação, configuração, gerenciamento de usuários, redes, segurança e troubleshooting em ambientes corporativos.";
             this.horas_curso = 24;
-          }else if(newVal === "Infraestrutura como Código com Terraform") {
+          } else if(newVal === "Infraestrutura como Código com Terraform") {
             this.descricao_curso = "Explore o Terraform para provisionamento e gerenciamento de infraestrutura em nuvem de forma eficiente. O treinamento inclui práticas de automação, reutilização de código e integração com múltiplos provedores de nuvem.";
             this.horas_curso = 15;
-          }else if(newVal === "Vault Essentials: Segurança de Dados e Gestão de Segredos") {
+          } else if(newVal === "Vault Essentials: Segurança de Dados e Gestão de Segredos") {
             this.descricao_curso = "Aprenda a proteger informações sensíveis com o HashiCorp Vault. O curso cobre conceitos de criptografia, controle de acesso baseado em políticas, integração com aplicações e automação de processos de segurança.";
             this.horas_curso = 14;
           }
@@ -172,8 +195,8 @@
           const file = event.target.files[0];
           this.time_cliente = file;
         },
-        submitCertificacao() {
-          // Aqui você pode processar ou enviar os dados conforme necessário
+        async submitCertificacao() {
+          // Exibe os dados no console (para depuração)
           console.log("Categoria:", this.categoria);
           console.log("Nome do Curso:", this.nome_do_curso);
           console.log("Descrição do Curso:", this.descricao_curso);
@@ -181,7 +204,113 @@
           console.log("Nome do Cliente:", this.nome_cliente_cert);
           console.log("Logo do Cliente:", this.logo_cliente);
           console.log("Time do Cliente:", this.time_cliente);
-          alert("Dados da Certificação enviados (verifique o console)!");
+
+          // Função para converter um arquivo para Base64
+          const getBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(reader.result);
+              reader.onerror = error => reject(error);
+              reader.readAsDataURL(file);
+            });
+          };
+
+          // Função para converter uma imagem a partir de uma URL em Base64
+          const getBase64FromUrl = (url) => {
+            return fetch(url)
+              .then(response => response.blob())
+              .then(blob => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(blob);
+              }));
+          };
+
+          // Cria o PDF em orientação landscape (horizontal)
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({
+            orientation: 'landscape',
+            unit: 'pt',
+            format: 'a4'
+          });
+
+          // Obtém as dimensões da página
+          const pageWidth = doc.internal.pageSize.getWidth();
+          const pageHeight = doc.internal.pageSize.getHeight();
+
+          // Carrega a imagem de background e a adiciona ocupando toda a página
+          const backgroundUrl = 'https://raw.githubusercontent.com/GabValenca/Prod/main/Pointer/imagens/wallpaper_Pointer(light).jpeg';
+          try {
+            const backgroundDataUrl = await getBase64FromUrl(backgroundUrl);
+            doc.addImage(backgroundDataUrl, 'JPEG', 0, 0, pageWidth, pageHeight);
+          } catch (error) {
+            console.error("Erro ao carregar a imagem de background:", error);
+          }
+
+          // Adiciona o logo da Pointer no canto superior esquerdo
+          const pointerLogoUrl = 'https://raw.githubusercontent.com/GabValenca/Prod/main/Pointer/imagens/LOGO_ESCURO.png';
+          try {
+            const pointerLogoDataUrl = await getBase64FromUrl(pointerLogoUrl);
+            const pointerLogoWidth = 70;  // ajuste conforme necessário
+            const pointerLogoHeight = 50; // ajuste conforme necessário
+            doc.addImage(pointerLogoDataUrl, 'PNG', 20, 20, pointerLogoWidth, pointerLogoHeight);
+          } catch (error) {
+            console.error("Erro ao carregar o logo da Pointer:", error);
+          }
+
+          // Se houver logo do cliente, converte para Base64 e adiciona no canto superior direito
+          if (this.logo_cliente) {
+            try {
+              const logoDataUrl = await getBase64(this.logo_cliente);
+              const imageType = this.logo_cliente.type.includes('png') ? 'PNG' : 'JPEG';
+              const logoWidth = 60;  // ajuste conforme necessário
+              const logoHeight = 50; // ajuste conforme necessário
+              doc.addImage(logoDataUrl, imageType, pageWidth - logoWidth - 20, 20, logoWidth, logoHeight);
+            } catch (error) {
+              console.error("Erro ao carregar o logo do cliente:", error);
+            }
+          }
+
+          // Adiciona o conteúdo do PDF (texto)
+          let x = 40, y = 100, lineHeight = 30;
+          doc.setFont("arial", "normal");
+            doc.setFontSize(12);
+            doc.text(`${this.categoria}`, pageWidth / 2, 30, { align: "center" });
+            doc.setFontSize(20);
+            doc.text("Certificado de Conclusão que:", pageWidth / 2, 70, { align: "center" });
+            doc.text("Obteve sucesso na conclusão do curso:", pageWidth / 2, 135, { align: "center" });
+
+            // Coloca em negrito somente os textos solicitados:
+            doc.setFont("arial", "bold");
+            doc.text(`${this.nome_cliente_cert}`, pageWidth / 2, 95, { align: "center" });
+            doc.text(`${this.nome_do_curso}`, pageWidth / 2, 160, { align: "center" });
+          
+          doc.setFont("arial", "normal");
+          doc.setFontSize(12);
+          
+          // Quebra automática de linha para a descrição
+          let descriptionText = `Descrição: ${this.descricao_curso}`;
+          let maxTextWidth = pageWidth - 120; // 40pt de margem em cada lado
+          let splitDescription = doc.splitTextToSize(descriptionText, maxTextWidth);
+          doc.text(splitDescription, pageWidth / 2, 200, { align: "center" });
+          
+          doc.text(`Curso realizado no periodo de ${this.data_inicio} a ${this.data_final} com duracao de ${this.horas_curso} horas`, pageWidth / 2, 570, { align: "center" });
+          
+          // Alinha "Aluno" e "Instrutor" na mesma linha,
+          // com "Aluno" à esquerda e "Instrutor" à direita.
+          doc.setFont("arial", "normal");
+          doc.setFontSize(14);
+          const signatureY = 500;
+          doc.text("_________________", 100, signatureY - 20);
+          doc.text("             Aluno", 100, signatureY);
+          doc.text("_________________", pageWidth - 100, signatureY - 20, { align: "right" });
+          doc.text("Instrutor         ", pageWidth - 100, signatureY, { align: "right" });
+          
+          // Salva o PDF com o nome "certificacao.pdf"
+          doc.save("certificacao.pdf");
+
+          alert("PDF gerado com sucesso!");
         }
       },
       mounted() {
