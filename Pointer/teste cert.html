@@ -82,17 +82,30 @@
             <label class="block text-sm font-medium mb-1">Nome do Cliente</label>
             <input type="text" v-model="nome_cliente_cert" class="w-full border rounded p-2" />
           </div>
-          <!-- Campo Logo do Cliente -->
+          <!-- Campo Inicio do Treinamento -->
           <div>
-            <label class="block text-sm font-medium mb-1">Logo do Cliente</label>
-            <input type="file" @change="handleLogoCliente" accept=".jpg,.jpeg,.png" class="w-full border rounded p-2" />
+            <label class="block text-sm font-medium mb-1">Inicio do Treinamento</label>
+            <input type="date"v-model="data_inicio" class="w-full border rounded p-2" />
           </div>
-          <!-- Campo Time do Cliente -->
+          <!-- Campo Final do Treinamento -->
           <div>
-            <label class="block text-sm font-medium mb-1">Time do Cliente</label>
-            <input type="file" @change="handleTimeCliente" accept=".csv" class="w-full border rounded p-2" />
+            <label class="block text-sm font-medium mb-1">Final do Treinamento</label>
+            <input type="date" v-model="data_final" class="w-full border rounded p-2" />
           </div>
         </div>
+         <!-- Segunda linha: Nome do Cliente, Logo do Cliente e Time do Cliente -->
+         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <!-- Campo Logo do Cliente -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Logo do Cliente</label>
+              <input type="file" @change="handleLogoCliente" accept=".jpg,.jpeg,.png" class="w-full border rounded p-2" />
+            </div>
+            <!-- Campo Time do Cliente -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Time do Cliente</label>
+              <input type="file" @change="handleTimeCliente" accept=".csv" class="w-full border rounded p-2" />
+            </div>
+          </div>
         <!-- Terceira linha: Descrição do Curso -->
         <div class="grid grid-cols-1 gap-4 mb-6">
           <div>
@@ -127,6 +140,8 @@
           descricao_curso: '',
           horas_curso: 0,
           nome_cliente_cert: 'Ye',
+          data_inicio: 0,
+          data_final:0,
           logo_cliente: null,
           time_cliente: null
         };
@@ -226,7 +241,6 @@
 
           // Carrega a imagem de background e a adiciona ocupando toda a página
           const backgroundUrl = 'https://raw.githubusercontent.com/GabValenca/Prod/main/Pointer/imagens/wallpaper_Pointer(light).jpeg';
-          // .png';
           try {
             const backgroundDataUrl = await getBase64FromUrl(backgroundUrl);
             doc.addImage(backgroundDataUrl, 'JPEG', 0, 0, pageWidth, pageHeight);
@@ -235,7 +249,7 @@
           }
 
           // Adiciona o logo da Pointer no canto superior esquerdo
-          const pointerLogoUrl = 'https://raw.githubusercontent.com/GabValenca/Prod/main/Pointer/imagens/LOGO_FUNDO_AZUL.png';
+          const pointerLogoUrl = 'https://raw.githubusercontent.com/GabValenca/Prod/main/Pointer/imagens/LOGO_ESCURO.png';
           try {
             const pointerLogoDataUrl = await getBase64FromUrl(pointerLogoUrl);
             const pointerLogoWidth = 60;  // ajuste conforme necessário
@@ -249,7 +263,6 @@
           if (this.logo_cliente) {
             try {
               const logoDataUrl = await getBase64(this.logo_cliente);
-              // Determina o tipo da imagem (PNG ou JPEG)
               const imageType = this.logo_cliente.type.includes('png') ? 'PNG' : 'JPEG';
               const logoWidth = 60;  // ajuste conforme necessário
               const logoHeight = 50; // ajuste conforme necessário
@@ -262,23 +275,38 @@
           // Adiciona o conteúdo do PDF (texto)
           let x = 40, y = 100, lineHeight = 30;
           doc.setFont("arial", "normal");
-          doc.setFontSize(12);
-          doc.text(`${this.categoria}`, pageWidth / 2, 30, { align: "center" })
-          doc.setFontSize(20);
-          doc.text("Certificado de Conclusão", pageWidth / 2, 70, { align: "center" });
-          doc.text(`${this.nome_cliente_cert}`, pageWidth / 2, 95, { align: "center" });
-          doc.text("Obteve sucesso na conclusão do curso:", pageWidth / 2, 130, { align: "center" });
-          doc.text(`${this.nome_do_curso}`, pageWidth / 2, 155, { align: "center" });
+            doc.setFontSize(12);
+            doc.text(`${this.categoria}`, pageWidth / 2, 30, { align: "center" });
+            doc.setFontSize(20);
+            doc.text("Certificado de Conclusão que:", pageWidth / 2, 70, { align: "center" });
+            doc.text("Obteve sucesso na conclusão do curso:", pageWidth / 2, 135, { align: "center" });
+
+            // Coloca em negrito somente os textos solicitados:
+            doc.setFont("arial", "bold");
+            doc.text(`${this.nome_cliente_cert}`, pageWidth / 2, 95, { align: "center" });
+            doc.text(`${this.nome_do_curso}`, pageWidth / 2, 160, { align: "center" });
           
-
-          doc.setFont("normal");
+          doc.setFont("arial", "normal");
           doc.setFontSize(12);
-          doc.text(`Descrição: ${this.descricao_curso}`, pageWidth / 2, 200, { align: "center" });
-          doc.text(`Horas do Curso: ${this.horas_curso}`, pageWidth / 2, 400, { align: "center" });
-          doc.text(`Aluno`, 100, 500);
-          doc.text(`Instrutor`,pageWidth / 5, 600);
-
-
+          
+          // Quebra automática de linha para a descrição
+          let descriptionText = `Descrição: ${this.descricao_curso}`;
+          let maxTextWidth = pageWidth - 120; // 40pt de margem em cada lado
+          let splitDescription = doc.splitTextToSize(descriptionText, maxTextWidth);
+          doc.text(splitDescription, pageWidth / 2, 200, { align: "center" });
+          
+          doc.text(`Curso realizado no periodo de ${this.data_inicio} a ${this.data_final} com duracao de ${this.horas_curso} horas`, pageWidth / 2, 570, { align: "center" });
+          
+          // Alinha "Aluno" e "Instrutor" na mesma linha,
+          // com "Aluno" à esquerda e "Instrutor" à direita.
+          doc.setFont("arial", "normal");
+          doc.setFontSize(14);
+          const signatureY = 500;
+          doc.text("_________________", 100, signatureY - 20);
+          doc.text("             Aluno", 100, signatureY);
+          doc.text("_________________", pageWidth - 100, signatureY - 20, { align: "right" });
+          doc.text("Instrutor         ", pageWidth - 100, signatureY, { align: "right" });
+          
           // Salva o PDF com o nome "certificacao.pdf"
           doc.save("certificacao.pdf");
 
