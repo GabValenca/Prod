@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐕</text></svg>">
+  <title>Calculadora de Preços - Atividade Noturna</title>
+  <meta name="description" content="USO INTERNO POINTER  Calculadora de preços para serviços de Atividade Noturna e Sobreaviso">
+  
+  <!-- Vue e Tailwind -->
+  <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-50">
+  <!-- Botão fixo no canto superior esquerdo para executar o comando -->
+  <button id="runCommand" 
+          style="position: fixed; top: 10px; left: 10px; z-index: 10000; color: white; padding: 8px 12px; border: none; border-radius: 4px; font-weight: bold;">
+  </button>
+
+  <!-- Sidebar -->
+  <aside class="w-64 h-screen bg-blue-950 text-white fixed flex flex-col items-center p-4">
+    <div class="text-4xl">
+      <img src="https://pointertech.digital/assets/LOGO_TAG_FUNDO_AZUL-xrB-CNDi.png" alt="Logo Pointer">
+    </div>
+    <nav class="mt-6 w-full">
+      <ul class="space-y-4 text-lg">
+        <li>
+          <a href="index.html" class="block p-2 rounded hover:bg-gray-700">Início</a>
+        </li>
+        <li>
+          <a href="calculadora.html" class="block p-2 rounded hover:bg-gray-700">Calculadora</a>
+        </li>
+        <li>
+          <a href="certificacao.html" class="block p-2 rounded hover:bg-gray-700">Certificação</a>
+        </li>
+        <li>
+          <a href="#" class="block p-2 rounded hover:bg-gray-700">Configuração</a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Conteúdo Principal (onde a aplicação Vue está montada) -->
+  <div id="app" class="container mx-auto p-4 ml-64 max-w-6xl">
+    <!-- Página Certificação -->
+    <div>
+      <div class="w-full mx-auto bg-white rounded-lg shadow-lg p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-bold">Certificação</h1>
+        </div>
+        <!-- Primeira linha: Categoria, Nome do Curso e Horas do Curso -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <!-- Campo Categoria -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Categoria</label>
+            <select v-model="categoria" class="w-full border rounded p-2">
+              <option value="SUSE">SUSE</option>
+              <option value="GitLab">GitLab</option>
+              <option value="HashiCorp">HashiCorp</option>
+            </select>
+          </div>
+          <!-- Campo Nome do Curso (opções dinâmicas) -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Nome do Curso</label>
+            <select v-model="nome_do_curso" class="w-full border rounded p-2">
+              <option v-for="option in nome_do_curso_options" :key="option" :value="option">{{ option }}</option>
+            </select>
+          </div>
+          <!-- Campo Horas do Curso -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Horas do Curso</label>
+            <input type="number" v-model.number="horas_curso" class="w-full border rounded p-2" />
+          </div>
+        </div>
+        <!-- Segunda linha: Nome do Cliente, Logo do Cliente e Time do Cliente -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <!-- Campo Nome do Cliente -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Nome do Cliente</label>
+            <input type="text" v-model="nome_cliente_cert" class="w-full border rounded p-2" />
+          </div>
+          <!-- Campo Logo do Cliente -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Logo do Cliente</label>
+            <input type="file" @change="handleLogoCliente" accept=".jpg,.jpeg,.png" class="w-full border rounded p-2" />
+          </div>
+          <!-- Campo Time do Cliente -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Time do Cliente</label>
+            <input type="file" @change="handleTimeCliente" accept=".csv" class="w-full border rounded p-2" />
+          </div>
+        </div>
+        <!-- Terceira linha: Descrição do Curso -->
+        <div class="grid grid-cols-1 gap-4 mb-6">
+          <div>
+            <label class="block text-sm font-medium mb-1">Descrição do Curso</label>
+            <textarea v-model="descricao_curso" class="w-full border rounded p-2" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="flex justify-center mt-4">
+          <button @click="submitCertificacao" class="bg-green-500 text-white px-4 py-2 rounded">
+            Enviar Certificação
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer>
+      <p class="font-medium py-6 flex items-center justify-center mt-40">
+        <a target="_blank" rel="noopener noreferrer" href="https://www.blackparrot.com.br/">Desenvolvido por BlackParrot®</a>
+      </p> 
+  </footer>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          // Dados para Certificação
+          categoria: "", // Valor inicial para disparar a lógica (pode ser alterado)
+          nome_do_curso: '',
+          nome_do_curso_options: [], // Será atualizado conforme a categoria
+          descricao_curso: '',
+          horas_curso: 0,
+          nome_cliente_cert: '',
+          logo_cliente: null,
+          time_cliente: null
+        };
+      },
+      watch: {
+        // Atualiza as opções de nome_do_curso conforme a categoria selecionada
+        categoria(newVal) {
+          if(newVal === "GitLab") {
+            this.nome_do_curso_options = ["GitLab Fundations", "GitLab CI/CD Avançado para DevOps", "GitLab para Gestão de Projetos Ágeis"];
+            this.nome_do_curso = this.nome_do_curso_options[0];
+          } else if(newVal === "SUSE") {
+            this.nome_do_curso_options = ["Gerenciamento de Contêineres com SUSE Rancher", "SUSE Linux Enterprise Server (SLES) para Administradores"];
+            this.nome_do_curso = this.nome_do_curso_options[0];
+          } else if(newVal === "HashiCorp") {
+            this.nome_do_curso_options = ["Infraestrutura como Código com Terraform", "Vault Essentials: Segurança de Dados e Gestão de Segredos"];
+            this.nome_do_curso = this.nome_do_curso_options[0];
+          }
+        },
+        // Preenche automaticamente os demais campos conforme o nome do curso selecionado
+        nome_do_curso(newVal) {
+          if(newVal === "GitLab Fundations") {
+            this.descricao_curso = "Esse curso contempla o básico de GitLab para o meio corporativo";
+            this.horas_curso = 10;
+          } else if(newVal === "GitLab CI/CD Avançado para DevOps") {
+            this.descricao_curso = "Este curso aborda práticas avançadas de CI/CD usando GitLab, incluindo automação de pipelines, segurança no ciclo de vida de software e integração com ferramentas externas. Ideal para equipes que buscam otimizar seus fluxos de trabalho DevOps.";
+            this.horas_curso = 16;
+          } else if(newVal === "GitLab para Gestão de Projetos Ágeis") {
+            this.descricao_curso = "Aprenda a utilizar o GitLab como uma ferramenta completa para gestão de projetos ágeis, incluindo boards Kanban, rastreamento de issues, planejamento de sprints e integração com DevOps.";
+            this.horas_curso = 8;
+          } else if(newVal === "Gerenciamento de Contêineres com SUSE Rancher") {
+            this.descricao_curso = "Aprenda a gerenciar e orquestrar clusters Kubernetes usando o SUSE Rancher. O curso cobre desde a configuração inicial até práticas avançadas de segurança e monitoramento de ambientes em produção.";
+            this.horas_curso = 20;
+          } else if(newVal === "SUSE Linux Enterprise Server (SLES) para Administradores") {
+            this.descricao_curso = "Curso focado em administração de servidores SUSE Linux Enterprise, cobrindo instalação, configuração, gerenciamento de usuários, redes, segurança e troubleshooting em ambientes corporativos.";
+            this.horas_curso = 24;
+          } else if(newVal === "Infraestrutura como Código com Terraform") {
+            this.descricao_curso = "Explore o Terraform para provisionamento e gerenciamento de infraestrutura em nuvem de forma eficiente. O treinamento inclui práticas de automação, reutilização de código e integração com múltiplos provedores de nuvem.";
+            this.horas_curso = 15;
+          } else if(newVal === "Vault Essentials: Segurança de Dados e Gestão de Segredos") {
+            this.descricao_curso = "Aprenda a proteger informações sensíveis com o HashiCorp Vault. O curso cobre conceitos de criptografia, controle de acesso baseado em políticas, integração com aplicações e automação de processos de segurança.";
+            this.horas_curso = 14;
+          }
+        }
+      },
+      methods: {
+        handleLogoCliente(event) {
+          const file = event.target.files[0];
+          this.logo_cliente = file;
+        },
+        handleTimeCliente(event) {
+          const file = event.target.files[0];
+          this.time_cliente = file;
+        },
+        submitCertificacao() {
+          // Exibe os dados no console (você pode remover estas linhas se não precisar)
+          console.log("Categoria:", this.categoria);
+          console.log("Nome do Curso:", this.nome_do_curso);
+          console.log("Descrição do Curso:", this.descricao_curso);
+          console.log("Horas do Curso:", this.horas_curso);
+          console.log("Nome do Cliente:", this.nome_cliente_cert);
+          console.log("Logo do Cliente:", this.logo_cliente);
+          console.log("Time do Cliente:", this.time_cliente);
+
+          // Geração do PDF em orientação horizontal (landscape)
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({
+            orientation: 'landscape',
+            unit: 'pt',      // unidade de medida (pontos)
+            format: 'a4'     // tamanho do papel A4
+          });
+
+          // Adiciona conteúdo ao PDF (ajuste as posições e formatações conforme sua necessidade)
+          let x = 40, y = 50, linha = 30;
+          doc.setFontSize(20);
+          doc.text("Certificação", x, y);
+          
+          doc.setFontSize(12);
+          y += linha;
+          doc.text(`Categoria: ${this.categoria}`, x, y);
+          y += linha;
+          doc.text(`Nome do Curso: ${this.nome_do_curso}`, x, y);
+          y += linha;
+          doc.text(`Descrição: ${this.descricao_curso}`, x, y);
+          y += linha;
+          doc.text(`Horas do Curso: ${this.horas_curso}`, x, y);
+          y += linha;
+          doc.text(`Nome do Cliente: ${this.nome_cliente_cert}`, x, y);
+          y += linha;
+          doc.text(`Logo do Cliente: ${this.logo_cliente ? this.logo_cliente.name : 'Não informado'}`, x, y);
+          y += linha;
+          doc.text(`Time do Cliente: ${this.time_cliente ? this.time_cliente.name : 'Não informado'}`, x, y);
+
+          // Salva o PDF com o nome "certificacao.pdf"
+          doc.save("certificacao.pdf");
+
+          alert("PDF gerado com sucesso!");
+        }
+      },
+      mounted() {
+        const downloadBtn = document.getElementById('downloadCsv');
+        if (downloadBtn) {
+          downloadBtn.addEventListener('click', this.downloadCSV);
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
