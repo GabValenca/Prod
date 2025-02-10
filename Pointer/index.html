@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐕</text></svg>">
   <title>Calculadora de Preços - Atividade Noturna</title>
-  <meta name="description" content="Calculadora de preços para serviços de Atividade Noturna e Sobreaviso">
+  <meta name="description" content=" USO INTERNO POINTER  Calculadora de preços para serviços de Atividade Noturna e Sobreaviso">
   <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -55,7 +55,49 @@
     const { createApp } = Vue;
 
     createApp({
+      data() {
+        return {
+        };
+      },
       methods: {
+      }
+    }).mount('#app');
+
+    // Função que executa o código do jogo ASCII dentro da div #app
+    function runGameCommand() {
+      // Usa o container existente com id "app"
+      const container = document.getElementById('app');
+      if (!container) {
+        console.error("Elemento com id 'app' não encontrado!");
+        return;
+      }
+      
+      // Bloqueia o scroll da página
+      document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', function(e) {
+        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+      
+      // Aplica estilos para que o container ocupe a área visível (com margem)
+      container.style.backgroundColor = 'black';
+      container.style.color = 'white';
+      container.style.fontFamily = 'monospace';
+      container.style.whiteSpace = 'pre';
+      container.style.padding = '5px';
+      // Removendo classes que possam interferir (por exemplo, padding ou margin do Vue)
+      
+      const gameWidth = window.innerWidth + 20;
+      const gameHeight = window.innerHeight + 20;
+      container.style.width = gameWidth + "px";
+      container.style.height = gameHeight + "px";
+      
+      // Limpa o conteúdo atual
+      while (container.firstChild) {
+        container.removeChild(container.firstChild);
+      }
+      
       // Estima a resolução em caracteres
       const charWidth = 200;
       const charHeight = 30;

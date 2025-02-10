@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐕</text></svg>">
   <title>Calculadora de Preços - Atividade Noturna</title>
-  <meta name="description" content="Calculadora de preços para serviços de Atividade Noturna e Sobreaviso">
+  <meta name="description" content=" USO INTERNO POINTER  Calculadora de preços para serviços de Atividade Noturna e Sobreaviso">
   <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -126,24 +126,39 @@
         // Atualiza as opções de nome_do_curso conforme a categoria selecionada
         categoria(newVal) {
           if(newVal === "GitLab") {
-            this.nome_do_curso_options = ["GitLab Fundations", "GitLab Advanced"];
+            this.nome_do_curso_options = ["GitLab Fundations", "GitLab CI/CD Avançado para DevOps","GitLab para Gestão de Projetos Ágeis"];
             this.nome_do_curso = this.nome_do_curso_options[0];
-          } else if(newVal === "SUSE" || newVal === "Rancher") {
-            this.nome_do_curso_options = ["Rancher"];
-            this.nome_do_curso = "Rancher";
+          } else if(newVal === "SUSE") {
+            this.nome_do_curso_options = ["Gerenciamento de Contêineres com SUSE Rancher", "SUSE Linux Enterprise Server (SLES) para Administradores"];
+            this.nome_do_curso = this.nome_do_curso_options[0];
+          } else if(newVal === "HashiCorp") {
+            this.nome_do_curso_options = ["Infraestrutura como Código com Terraform", "Vault Essentials: Segurança de Dados e Gestão de Segredos"];
+            this.nome_do_curso = this.nome_do_curso_options[0];
           }
         },
         // Se o nome do curso for "GitLab Fundations", preenche automaticamente os demais campos
         nome_do_curso(newVal) {
           if(newVal === "GitLab Fundations") {
             this.descricao_curso = "Esse curso contempla o básico de GitLab para o meio corporativo";
+            this.horas_curso = 10;
+          } else if(newVal === "GitLab CI/CD Avançado para DevOps") {
+            this.descricao_curso = "Este curso aborda práticas avançadas de CI/CD usando GitLab, incluindo automação de pipelines, segurança no ciclo de vida de software e integração com ferramentas externas. Ideal para equipes que buscam otimizar seus fluxos de trabalho DevOps.";
+            this.horas_curso = 16;
+          } else if(newVal === "GitLab para Gestão de Projetos Ágeis") {
+            this.descricao_curso = "Aprenda a utilizar o GitLab como uma ferramenta completa para gestão de projetos ágeis, incluindo boards Kanban, rastreamento de issues, planejamento de sprints e integração com DevOps.";
+            this.horas_curso = 8;
+          } else if(newVal === "Gerenciamento de Contêineres com SUSE Rancher") {
+            this.descricao_curso = "Aprenda a gerenciar e orquestrar clusters Kubernetes usando o SUSE Rancher. O curso cobre desde a configuração inicial até práticas avançadas de segurança e monitoramento de ambientes em produção.";
             this.horas_curso = 20;
-          } else if(newVal === "GitLab Advanced") {
-            this.descricao_curso = "Esse curso contempla o avançado de GitLab para o meio corporativo";
-            this.horas_curso = 40;
-          } else if(newVal === "Rancher") {
-            this.descricao_curso = "Esse curso contempla o avançado de Rancher para o meio corporativo";
+          } else if(newVal === "SUSE Linux Enterprise Server (SLES) para Administradores") {
+            this.descricao_curso = "Curso focado em administração de servidores SUSE Linux Enterprise, cobrindo instalação, configuração, gerenciamento de usuários, redes, segurança e troubleshooting em ambientes corporativos.";
+            this.horas_curso = 24;
+          }else if(newVal === "Infraestrutura como Código com Terraform") {
+            this.descricao_curso = "Explore o Terraform para provisionamento e gerenciamento de infraestrutura em nuvem de forma eficiente. O treinamento inclui práticas de automação, reutilização de código e integração com múltiplos provedores de nuvem.";
             this.horas_curso = 15;
+          }else if(newVal === "Vault Essentials: Segurança de Dados e Gestão de Segredos") {
+            this.descricao_curso = "Aprenda a proteger informações sensíveis com o HashiCorp Vault. O curso cobre conceitos de criptografia, controle de acesso baseado em políticas, integração com aplicações e automação de processos de segurança.";
+            this.horas_curso = 14;
           }
         }
       },
