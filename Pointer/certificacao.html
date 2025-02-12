@@ -218,7 +218,14 @@
                 reader.readAsDataURL(blob);
               }));
           };
-
+          // Função auxiliar para formatar a data
+          function formatDate(dateStr) {
+            const parts = dateStr.split('-'); // ["2025", "02", "03"]
+            if (parts.length === 3) {
+              return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateStr;
+          };
           // Adiciona a imagem de background (ocupando toda a página)
           const backgroundUrl = 'https://raw.githubusercontent.com/GabValenca/Prod/main/Pointer/imagens/wallpaper_Pointer(light).jpeg';
           try {
@@ -267,7 +274,7 @@
           doc.text("Certificado de Conclusão", pageWidth / 2, 70, { align: "center" });
           doc.setFontSize(20);
           // Texto que será impresso na mesma linha
-          let part1 = "Certificamos que para os devidos fins, o(a) aluno(a) ";
+          let part1 = "Certificamos que o(a) aluno(a) ";
           let part2 = nomeCliente;  // Será impresso em negrito
           let part3 = ", participou e concluiu o curso de:";
 
@@ -310,7 +317,7 @@
           doc.text(splitDescription, pageWidth / 2, 200, { align: "center" });
           
           // Linha com data e carga horária
-          doc.text(`Curso realizado no período de ${this.data_inicio} a ${this.data_final} com duração de ${this.horas_curso} horas`, pageWidth / 2, 570, { align: "center" });
+          doc.text(`Curso realizado no período de ${formatDate(this.data_inicio)} a ${formatDate(this.data_final)} com duração de ${this.horas_curso} horas`, pageWidth / 2, 570, { align: "center" });
           
           // Assinaturas: "Aluno" à esquerda e "Instrutor" à direita, na mesma linha
           doc.setFont("arial", "normal");
