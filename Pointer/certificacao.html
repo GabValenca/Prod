@@ -52,7 +52,7 @@
     <div>
       <div class="w-full mx-auto bg-white rounded-lg shadow-lg p-6">
         <div class="flex justify-between items-center mb-6">
-          <h1 class="text-2xl font-bold">Certificação</h1>
+          <h1 class="text-2xl font-bold">Certificado</h1>
         </div>
         <!-- Primeira linha: Categoria, Nome do Curso e Horas do Curso -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -60,9 +60,9 @@
           <div>
             <label class="block text-sm font-medium mb-1">* Categoria</label>
             <select v-model="categoria" class="w-full border rounded p-2">
-              <option value="SUSE">SUSE</option>
-              <option value="GitLab">GitLab</option>
-              <option value="HashiCorp">HashiCorp</option>
+              <option value="SUSE">SUSE®</option>
+              <option value="GitLab">GitLab®</option>
+              <option value="HashiCorp">HashiCorp®</option>
             </select>
           </div>
           <!-- Campo Nome do Curso (opções dinâmicas) -->
@@ -153,10 +153,10 @@
         // Atualiza as opções de nome_do_curso conforme a categoria selecionada
         categoria(newVal) {
           if(newVal === "GitLab") {
-            this.nome_do_curso_options = ["GitLab Fundations", "GitLab CI/CD Avançado para DevOps", "GitLab para Gestão de Projetos Ágeis"];
+            this.nome_do_curso_options = ["GitLab® Fundations", "GitLab® CI/CD Avançado para DevOps", "GitLab® para Gestão de Projetos Ágeis"];
             this.nome_do_curso = this.nome_do_curso_options[0];
           } else if(newVal === "SUSE") {
-            this.nome_do_curso_options = ["Gerenciamento de Contêineres com SUSE Rancher", "SUSE Linux Enterprise Server (SLES) para Administradores"];
+            this.nome_do_curso_options = ["Gerenciamento de Contêineres com SUSE® Rancher", "SUSE® Linux Enterprise Server (SLES) para Administradores"];
             this.nome_do_curso = this.nome_do_curso_options[0];
           } else if(newVal === "HashiCorp") {
             this.nome_do_curso_options = ["Infraestrutura como Código com Terraform", "Vault Essentials: Segurança de Dados e Gestão de Segredos"];
@@ -165,26 +165,26 @@
         },
         // Preenche automaticamente os demais campos conforme o nome do curso selecionado
         nome_do_curso(newVal) {
-          if(newVal === "GitLab Fundations") {
-            this.descricao_curso = "Esse curso contempla o básico de GitLab para o meio corporativo";
+          if(newVal === "GitLab® Fundations") {
+            this.descricao_curso = "Esse curso contempla o básico de GitLab® para o meio corporativo";
             this.horas_curso = 10;
-          } else if(newVal === "GitLab CI/CD Avançado para DevOps") {
-            this.descricao_curso = "Este curso aborda práticas avançadas de CI/CD usando GitLab, incluindo automação de pipelines, segurança no ciclo de vida de software e integração com ferramentas externas. Ideal para equipes que buscam otimizar seus fluxos de trabalho DevOps.";
+          } else if(newVal === "GitLab® CI/CD Avançado para DevOps") {
+            this.descricao_curso = "Este curso aborda práticas avançadas de CI/CD usando GitLab®, incluindo automação de pipelines, segurança no ciclo de vida de software e integração com ferramentas externas. Ideal para equipes que buscam otimizar seus fluxos de trabalho DevOps.";
             this.horas_curso = 16;
-          } else if(newVal === "GitLab para Gestão de Projetos Ágeis") {
-            this.descricao_curso = "Aprenda a utilizar o GitLab como uma ferramenta completa para gestão de projetos ágeis, incluindo boards Kanban, rastreamento de issues, planejamento de sprints e integração com DevOps.";
+          } else if(newVal === "GitLab® para Gestão de Projetos Ágeis") {
+            this.descricao_curso = "Aprenda a utilizar o GitLab® como uma ferramenta completa para gestão de projetos ágeis, incluindo boards Kanban, rastreamento de issues, planejamento de sprints e integração com DevOps.";
             this.horas_curso = 8;
-          } else if(newVal === "Gerenciamento de Contêineres com SUSE Rancher") {
-            this.descricao_curso = "Aprenda a gerenciar e orquestrar clusters Kubernetes usando o SUSE Rancher. O curso cobre desde a configuração inicial até práticas avançadas de segurança e monitoramento de ambientes em produção.";
+          } else if(newVal === "Gerenciamento de Contêineres com SUSE® Rancher") {
+            this.descricao_curso = "Aprenda a gerenciar e orquestrar clusters Kubernetes usando o SUSE® Rancher. O curso cobre desde a configuração inicial até práticas avançadas de segurança e monitoramento de ambientes em produção.";
             this.horas_curso = 20;
-          } else if(newVal === "SUSE Linux Enterprise Server (SLES) para Administradores") {
-            this.descricao_curso = "Curso focado em administração de servidores SUSE Linux Enterprise, cobrindo instalação, configuração, gerenciamento de usuários, redes, segurança e troubleshooting em ambientes corporativos.";
+          } else if(newVal === "SUSE® Linux Enterprise Server (SLES) para Administradores") {
+            this.descricao_curso = "Curso focado em administração de servidores SUSE® Linux Enterprise, cobrindo instalação, configuração, gerenciamento de usuários, redes, segurança e troubleshooting em ambientes corporativos.";
             this.horas_curso = 24;
           } else if(newVal === "Infraestrutura como Código com Terraform") {
             this.descricao_curso = "Explore o Terraform para provisionamento e gerenciamento de infraestrutura em nuvem de forma eficiente. O treinamento inclui práticas de automação, reutilização de código e integração com múltiplos provedores de nuvem.";
             this.horas_curso = 15;
           } else if(newVal === "Vault Essentials: Segurança de Dados e Gestão de Segredos") {
-            this.descricao_curso = "Aprenda a proteger informações sensíveis com o HashiCorp Vault. O curso cobre conceitos de criptografia, controle de acesso baseado em políticas, integração com aplicações e automação de processos de segurança.";
+            this.descricao_curso = "Aprenda a proteger informações sensíveis com o HashiCorp® Vault. O curso cobre conceitos de criptografia, controle de acesso baseado em políticas, integração com aplicações e automação de processos de segurança.";
             this.horas_curso = 14;
           }
         }
@@ -262,18 +262,47 @@
           }
 
           // Conteúdo do PDF
-          doc.setFont("arial", "normal");
-          doc.setFontSize(12);
-          doc.text(`${this.categoria}`, pageWidth / 2, 30, { align: "center" });
-          doc.setFontSize(20);
-          doc.text("Certificado de Conclusão que:", pageWidth / 2, 70, { align: "center" });
-          doc.text("Obteve sucesso na conclusão do curso:", pageWidth / 2, 135, { align: "center" });
-          // Nome do Cliente e Nome do Curso em negrito:
           doc.setFont("arial", "bold");
-          doc.text(`${nomeCliente}`, pageWidth / 2, 95, { align: "center" });
+          doc.setFontSize(40);
+          doc.text("Certificado de Conclusão", pageWidth / 2, 70, { align: "center" });
+          doc.setFontSize(20);
+          // Texto que será impresso na mesma linha
+          let part1 = "Certificamos que para os devidos fins, o(a) aluno(a) ";
+          let part2 = nomeCliente;  // Será impresso em negrito
+          let part3 = ", participou e concluiu o curso de:";
+
+          // Define a fonte normal para calcular a largura dos textos em part1 e part3
+          doc.setFont("arial", "normal");
+          doc.setFontSize(16);
+          let widthPart1 = doc.getTextWidth(part1);
+          let widthPart3 = doc.getTextWidth(part3);
+
+          // Para calcular a largura da parte em negrito, alteramos temporariamente o estilo
+          doc.setFont("arial", "bold");
+          let widthPart2 = doc.getTextWidth(part2);
+
+          // Largura total da linha:
+          let totalWidth = widthPart1 + widthPart2 + widthPart3;
+
+          // Coordenada x de início, para centralizar toda a linha
+          let startX = (pageWidth - totalWidth) / 2;
+          // Escolha da posição vertical (y) para o texto, por exemplo 135pt:
+          let posY = 125;
+
+          // Imprime cada parte na mesma linha:
+          doc.setFont("arial", "normal");
+          doc.text(part1, startX, posY, { align: "left" });
+
+          doc.setFont("arial", "bold");
+          doc.text(part2, startX + widthPart1, posY, { align: "left" });
+
+          doc.setFont("arial", "normal");
+          doc.text(part3, startX + widthPart1 + widthPart2, posY, { align: "left" });
+          doc.setFont("arial", "bold");
+          doc.setFontSize(20);
           doc.text(`${this.nome_do_curso}`, pageWidth / 2, 160, { align: "center" });
           doc.setFont("arial", "normal");
-          doc.setFontSize(12);
+          doc.setFontSize(16);
           // Quebra automática de linha para a descrição:
           let descriptionText = `Descrição: ${this.descricao_curso}`;
           let maxTextWidth = pageWidth - 120; // margem de 60pt total (30pt para cada lado)
