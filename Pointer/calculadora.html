@@ -48,7 +48,7 @@
         <div class="flex justify-between items-center mb-6">
           <h1 class="text-2xl font-bold">Calculadora de Horas de Serviço</h1>
           <div>
-            <div class="text-xl font-bold">Total Mensal: {{ formatCurrency(total) }}</div>
+            <div class="text-xl font-bold">Total Mensal: {{ formatCurrency(total)}}</div>
             <div class="text-xl font-bold">Total Anual: {{ formatCurrency(total * 12) }}</div>
           </div>
         </div>
@@ -233,7 +233,7 @@
           hours: 0,
           serviceType: 'suporte',
           profiles: [
-            { type: 'operator', nortuna: '', travelCost: '', standby: '', description: '' }
+            { type: 'operator', nortuna: '', travelCost: 0, standby: '', description: '' }
           ]
         };
       },
@@ -241,7 +241,8 @@
         total() {
           return this.profiles.reduce((sum, profile) => {
             const profileTotal = ((this.baseRate(profile.type) * this.clientRate(this.clientRange)) * this.hours * this.serviceRate(this.serviceType))
-              + profile.travelCost
+            profile.travelCost
+              + (profile.travelCost)
               + ((profile.nortuna * this.baseRate(profile.type)) * 1.25)
               + ((profile.standby * this.baseRate(profile.type)) * 1.33);
             return sum + profileTotal;
@@ -329,6 +330,7 @@
             "Parcial",
             "Atividade Noturna",
             "Sobreaviso",
+            "Custo viagem",
             "Descricao",
             "Atividade Noturna",
             "Sobreaviso",
@@ -356,6 +358,7 @@
               baseRounded,
               profile.nortuna,
               profile.standby,
+              profile.travelCost,
               profile.description,
               calculatedNoturna,
               calculatedStandby,
