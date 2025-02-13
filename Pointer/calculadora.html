@@ -112,14 +112,17 @@
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label class="block text-sm font-medium">Atividade Noturna</label>
-              <input type="number" v-model.number="profile.nortuna" class="w-full border rounded p-2">
+              <input type="number" v-model.number="profile.nortuna" class="w-full border rounded p-2" placeholder="Em horas" min="0">
             </div>
             <div>
               <label class="block text-sm font-medium">Sobreaviso</label>
-              <input type="number" v-model.number="profile.standby" class="w-full border rounded p-2">
+              <input type="number" v-model.number="profile.standby" class="w-full border rounded p-2" placeholder="Em horas" min="0">
             </div>
           </div>
-
+          <div class="mt-6">
+            <label class="block text-sm font-medium mb-2">Custo extra com viagens</label>
+            <input type="number" v-model.number="profile.travelCost" class="w-full border rounded p-2" placeholder="Insira o custo extra em Reais">
+          </div>
           <div class="mt-6">
             <label class="block text-sm font-medium mb-2">Descrição</label>
             <textarea v-model="profile.description" class="w-full border rounded p-2" rows="3"></textarea>
@@ -131,10 +134,13 @@
             <p>{{ formatCurrency(baseRate(profile.type)) }} * {{ clientRate(clientRange) }} (Número de Clientes ({{ clientRange }}))</p>
             <p>{{ formatCurrency(baseRate(profile.type) * clientRate(clientRange)) }} * {{ hours }} (Horas)</p>
             <p>{{ formatCurrency((baseRate(profile.type) * clientRate(clientRange)) * hours) }} * {{ serviceRate(serviceType) }} ({{ serviceType }})</p>
+            <p></p>
             <p>Total: {{ formatCurrency(((baseRate(profile.type) * clientRate(clientRange)) * hours) * serviceRate(serviceType)) }}</p>
             <br>
             <p>Ativ. Noturna (25%): {{ profile.nortuna }} * {{ formatCurrency(baseRate(profile.type) * 1.25) }} = {{ formatCurrency((profile.nortuna * baseRate(profile.type)) * 1.25) }}</p>
             <p>Sobreaviso (33%): {{ profile.standby }} * {{ formatCurrency(baseRate(profile.type) * 1.33) }} = {{ formatCurrency((profile.standby * baseRate(profile.type)) * 1.33) }}</p>
+            <p></p>
+            <p>Extra viagem: {{ formatCurrency(profile.travelCost) }}</p>
           </div>
         </div>
       </div>
@@ -227,7 +233,7 @@
           hours: 0,
           serviceType: 'suporte',
           profiles: [
-            { type: 'operator', nortuna: 0, standby: 0, description: '' }
+            { type: 'operator', nortuna: '', travelCost: '', standby: '', description: '' }
           ]
         };
       },
@@ -235,6 +241,7 @@
         total() {
           return this.profiles.reduce((sum, profile) => {
             const profileTotal = ((this.baseRate(profile.type) * this.clientRate(this.clientRange)) * this.hours * this.serviceRate(this.serviceType))
+              + profile.travelCost
               + ((profile.nortuna * this.baseRate(profile.type)) * 1.25)
               + ((profile.standby * this.baseRate(profile.type)) * 1.33);
             return sum + profileTotal;
@@ -266,9 +273,9 @@
         serviceRate(type) {
           const rates = {
             'suporte': 1,
-            'installation': 2,
-            'consultoria': 3,
-            'treinamento': 5
+            'installation': 1.2,
+            'consultoria': 1.5,
+            'treinamento': 2
           };
           return rates[type] || 1;
         },
