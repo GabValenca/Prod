@@ -19,19 +19,6 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      body {
-        background-image: url('https://raw.githubusercontent.com/GabValenca/Prod/main/Drax/Relatorio/DRAX/Drax-Wallpaper.jpeg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-      }
-      @media print {
-        #form-container {
-          display: none;
-        }
-      }
-    </style>
-    <style>
       @media print {
         #form-container {
           display: none;
@@ -41,70 +28,80 @@
   </head>
   <body class="bg-gray-50">
     <!-- Sidebar -->
-    <aside class="w-32 h-screen text-white fixed flex flex-col items-center p-4">
-      <div class="text-4xl ml-4">Gerador de PDF 📄</div>
-      <nav class="mt-6 w-full">
-        <ul class="space-y-4 text-lg">
-          <li><a href="#" class="block p-2 rounded hover:bg-gray-700">Início</a></li>
-          <li><a href="#" class="block p-2 rounded hover:bg-gray-700">Calculadora</a></li>
-          <li><a href="#" class="block p-2 rounded hover:bg-gray-700">Configurações</a></li>
-        </ul>
+  <aside class="w-64 h-screen bg-blue-950 text-white fixed flex flex-col items-center p-4">
+    <div class="text-4xl">
+      <img src="https://pointertech.digital/assets/LOGO_TAG_FUNDO_AZUL-xrB-CNDi.png" alt="Logo Pointer">
+    </div>
+    <nav class="mt-6 w-full">
+      <ul class="space-y-4 text-lg">
+        <li>
+          <a href="index.html" class="block p-2 rounded hover:bg-gray-700">Início</a>
+        </li>
+        <li>
+          <a href="calculadora.html" class="block p-2 rounded hover:bg-gray-700">Calculadora</a>
+        </li>
+        <li>
+          <a href="certificacao.html" class="block p-2 rounded hover:bg-gray-700">Certificação</a>
+        </li>
+        <li>
+          <a href="teste cert.html" class="block p-2 rounded hover:bg-gray-700">Configuração</a>
+        </li>
         <button id="downloadPdf" class="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
           Baixar PDF
         </button>
-      </nav>
-    </aside>
+      </ul>
+    </nav>
+  </aside>
 
     <!-- Formulário de Entrada (Vue) -->
-    <div class="flex">
-      <div id="app" class="ml-40 p-6 bg-white shadow-lg rounded-lg" style="margin-right: -5px;margin-bottom: -70px;">
-        <h2 class="text-xl font-semibold mb-4">Configuração do Documento</h2>
-        <div id="form-container" class="grid grid-cols-1 gap-4">
-          <!-- Campo de seleção de perfil -->
-          <div>
-            <label class="block text-sm font-medium">Perfil</label>
-            <select v-model="selectedProfile" class="w-full border rounded p-2">
-              <option value="VILTI">VILTI</option>
-              <option value="Drax">Drax</option>
-              <option value="VILTI_SEBRAE">SEBRAE</option>
-              <option value="Drax_Cassi">CASSI</option>
-              <option value="Drax_PF">PF</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Title</label>
-            <input type="text" id="title" v-model="title" class="w-full border rounded p-2" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Company Logo</label>
-            <input type="file" id="companyLogo" class="w-full border rounded p-2" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Client Logo</label>
-            <input type="file" id="clientLogo" class="w-full border rounded p-2" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Client Name</label>
-            <input type="text" id="clientName" v-model="clientName" class="w-full border rounded p-2" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Project</label>
-            <input type="text" id="project" v-model="project" class="w-full border rounded p-2" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Owner</label>
-            <input type="text" id="owner" v-model="owner" class="w-full border rounded p-2" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Footer</label>
-            <input type="text" id="footer" v-model="footer" class="w-full border rounded p-2" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium">Arquivo CSV</label>
-            <input type="file" id="csvFile" class="w-full border rounded p-2" />
-          </div>
+    <div id="app" class="container mx-auto p-4 ml-64 max-w-6xl">
+      <!-- Página Certificação -->
+      <div>
+        <div class="w-full mx-auto bg-white rounded-lg shadow-lg p-6">
+          <h2 class="text-xl font-semibold mb-4">Configuração do Documento</h2>
+            <div id="form-container" class="grid grid-cols-2 gap-4">
+              <!-- Campo de seleção de perfil -->
+              <div>
+                <label class="block text-sm font-medium">Perfil</label>
+                <select v-model="selectedProfile" class="w-full border rounded p-2">
+                  <option value="PRODESP">PRODESP</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium">Title</label>
+                <input type="text" id="title" v-model="title" class="w-full border rounded p-2" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium">Company Logo</label>
+                <input type="file" id="companyLogo" class="w-full border rounded p-2" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium">Client Logo</label>
+                <input type="file" id="clientLogo" class="w-full border rounded p-2" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium">Client Name</label>
+                <input type="text" id="clientName" v-model="clientName" class="w-full border rounded p-2" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium">Project</label>
+                <input type="text" id="project" v-model="project" class="w-full border rounded p-2" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium">Owner</label>
+                <input type="text" id="owner" v-model="owner" class="w-full border rounded p-2" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium">Footer</label>
+                <input type="text" id="footer" v-model="footer" class="w-full border rounded p-2" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium">Arquivo CSV</label>
+                <input type="file" id="csvFile" class="w-full border rounded p-2" />
+              </div>
+            </div>
         </div>
-      </div>
+      </div>  
     </div>
     <footer>
       <p class="flex items-end justify-center font-medium p-6 ml-80 text-white">
@@ -116,7 +113,6 @@
 
     <script>
       // Função para formatar números com separador de milhares (ex.: 9090 → "9.090")
-      // Aqui NÃO alteramos a função em si; a exceção será aplicada no momento de usar essa função.
       function formatNumber(num) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
       }
@@ -360,7 +356,7 @@
           pdf.setFontSize(12);
           const introText10 = `1. INTRODUÇÃO`;
           const introText111 = `    MailInspector é uma ferramenta avançada de análise de emails que permite a inspeção detalhada de campanhas, identificação de spams, e monitoramento de performance de mensagens.`;
-          const introText112 = `  Este relatório apresenta a análise detalhada dos e-mails enviados e recebidos pelo(a) ${clientName}, utilizando a ferramenta MailInspector da HSC através do suporte de sustentação da ${footer}. O objetivo desta análise é verificar a conformidade com boas práticas de segurança, identificar possíveis vulnerabilidades e avaliar a reputação dos remetentes e domínios.`;
+          const introText112 = `  Este relatório apresenta a análise detalhada dos e-mails enviados e recebidos pelo ${clientName}, utilizando a ferramenta MailInspector da HSC através do suporte de sustentação da ${footer}. O objetivo desta análise é verificar a conformidade com boas práticas de segurança, identificar possíveis vulnerabilidades e avaliar a reputação dos remetentes e domínios.`;
           const introText113 = `  A ferramenta MailInspector permite detectar falhas de autenticação, avaliar a integridade das mensagens e identificar potenciais ameaças, como phishing, spam e ataques baseados em e-mails.`;
           const introText114 = `2. METODOLOGIA\r
         Para garantir uma análise completa, foram adotados os seguintes critérios:`; 
@@ -770,15 +766,16 @@
       const app = Vue.createApp({
         data() {
           return {
-            selectedProfile: "VILTI",
+            selectedProfile: "PRODESP",
             profiles: {
-              VILTI: {
-                companyLogo: "https://raw.githubusercontent.com/GabValenca/Prod/main/Drax/Relatorio/VILTI/Transparente.png",
-                clientName: "SEBRAE",
-                project: "SEBRAE",
-                owner: "Gleisson Farias",
-                title: "MailInspector (HSC)",
-                footer: "VILTI",
+              PRODESP: {
+                companyLogo: "https://raw.githubusercontent.com/GabValenca/Prod/main/Pointer/imagens/LOGO_FUNDO_AZUL.png",
+                clientLogo: "https://raw.githubusercontent.com/GabValenca/Prod/main/Drax/Relatorio/VILTI/Sebrae.png",
+                clientName: "PRODESP",
+                project: "PRODESP",
+                owner: "Gabriel S Valença",
+                title: "GitLab Enterprise Edition",
+                footer: "Pointer",
                 headerColor: [0, 102, 204]
               },
               Drax: {
@@ -789,43 +786,13 @@
                 title: "MailInspector (HSC)",
                 footer: "DraxTec",
                 headerColor: [50, 175, 182]
-              },
-              VILTI_SEBRAE: {
-                companyLogo: "https://raw.githubusercontent.com/GabValenca/Prod/main/Drax/Relatorio/VILTI/Transparente.png",
-                clientLogo: "https://raw.githubusercontent.com/GabValenca/Prod/main/Drax/Relatorio/VILTI/Sebrae.png",
-                clientName: "SEBRAE",
-                project: "SEBRAE",
-                owner: "Gleisson Farias",
-                title: "MailInspector (HSC)",
-                footer: "VILTI",
-                headerColor: [0, 102, 204]
-              },
-              Drax_Cassi: {
-                companyLogo: "https://raw.githubusercontent.com/GabValenca/Prod/main/Drax/Relatorio/DRAX/logo-versao-cores.png",
-                clientLogo: "https://raw.githubusercontent.com/GabValenca/Prod/main/Drax/Relatorio/DRAX/cassi.jpg",
-                clientName: "CASSI",
-                project: "CASSI",
-                owner: "Gleisson Farias",
-                title: "MailInspector (HSC)",
-                footer: "DraxTec",
-                headerColor: [50, 175, 182]
-              },
-              Drax_PF: {
-                companyLogo: "https://raw.githubusercontent.com/GabValenca/Prod/main/Drax/Relatorio/DRAX/logo-versao-cores.png",
-                clientLogo: "https://raw.githubusercontent.com/GabValenca/Prod/main/Drax/Relatorio/DRAX/pf.png",
-                clientName: "Polícia Federal",
-                project: "Polícia Federal",
-                owner: "Gleisson Farias",
-                title: "MailInspector (HSC)",
-                footer: "DraxTec",
-                headerColor: [50, 175, 182]
               }
             },
-            clientName: "SEBRAE",
-            project: "SEBRAE",
+            clientName: "PRODESP",
+            project: "PRODESP",
             owner: "Gabriel S Valença",
-            title: "MailInspector (HSC)",
-            footer: "VILTI"
+            title: "GitLab",
+            footer: "pointer.tech"
           };
         },
         watch: {
