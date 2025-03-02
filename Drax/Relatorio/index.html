@@ -40,24 +40,26 @@
     </style>
   </head>
   <body class="bg-gray-50">
+    </aside>
     <!-- Sidebar -->
-    <aside class="w-32 h-screen text-white fixed flex flex-col items-center p-4">
-      <div class="text-4xl ml-4">Gerador de PDF 📄</div>
-      <nav class="mt-6 w-full">
-        <ul class="space-y-4 text-lg">
-          <li><a href="#" class="block p-2 rounded hover:bg-gray-700">Início</a></li>
-          <li><a href="#" class="block p-2 rounded hover:bg-gray-700">Calculadora</a></li>
-          <li><a href="#" class="block p-2 rounded hover:bg-gray-700">Configurações</a></li>
-        </ul>
-        <button id="downloadPdf" class="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
-          Baixar PDF
-        </button>
-      </nav>
+    <aside class="w-64 h-screen bg-blue-950 text-white fixed flex flex-col items-center p-4" style="justify-content:space-around; align-items: center">
+      <div class="text-4xl">
+        <img src="https://raw.githubusercontent.com/GabValenca/Prod/main/Drax/Relatorio/DRAX/logo-versao-cores.png" alt="Logo Drax">
+      </div>
+      <div class="text-4xl flex text-center mt-10">Relatório de inteligência Drax 📄</div>
+          <button id="downloadPdf" class="mt-6 bg-blue-500 flex items-center text-white px-4 py-2 rounded-full hover:bg-blue-700">
+            Baixar PDF
+          </button>
+      <p class="flex justify-center font-medium text-white">
+        <a target="_blank" rel="noopener noreferrer" href="https://www.blackparrot.com.br/">
+          Desenvolvido por BlackParrot®
+        </a>
+      </p>
     </aside>
 
     <!-- Formulário de Entrada (Vue) -->
     <div class="flex">
-      <div id="app" class="ml-40 p-6 bg-white shadow-lg rounded-lg" style="margin-right: -5px;margin-bottom: -70px;">
+      <div id="app" class="ml-64 p-6 bg-white shadow-lg rounded-lg" style="margin-right: -5px;margin-bottom: -70px;">
         <h2 class="text-xl font-semibold mb-4">Configuração do Documento</h2>
         <div id="form-container" class="grid grid-cols-1 gap-4">
           <!-- Campo de seleção de perfil -->
@@ -106,13 +108,6 @@
         </div>
       </div>
     </div>
-    <footer>
-      <p class="flex items-end justify-center font-medium p-6 ml-80 text-white">
-        <a target="_blank" rel="noopener noreferrer" href="https://www.blackparrot.com.br/">
-          Desenvolvido por BlackParrot®
-        </a>
-      </p> 
-    </footer>
 
     <script>
       // Função para formatar números com separador de milhares (ex.: 9090 → "9.090")
