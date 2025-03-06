@@ -12,15 +12,24 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div id="app" class="container mx-auto px-4 py-8">
-        <header class="text-center mb-12">
-            <!-- Hamburger Menu -->
-            <div class="absolute top-4 left-4">
-                <button @click="toggleSidebar" class="text-gray-700 hover:text-gray-900 focus:outline-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
+        <!-- Top Navigation Bar -->
+        <nav class="fixed top-0 left-0 right-0 bg-purple-500 text-white py-3 px-6 shadow-md z-40">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <button @click="toggleSidebar" class="text-white hover:text-gray-200 focus:outline-none mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <span class="font-bold text-xl" style="font-family: 'Bricolage Grotesque', sans-serif;">RACK</span>
+                </div>
             </div>
+        </nav>
+        
+        <header class="text-center mb-12">
+            <!-- Header content -->
+            
+            
             
             <!-- Sidebar Menu -->
             <div v-if="sidebarOpen" class="fixed inset-0 z-50 flex">
@@ -36,10 +45,10 @@
                             </svg>
                         </button>
                     </div>
-                    <div class="p-4 pt-10 space-y-4">
+                    <span class="font-bold text-4xl text-purple-500 ml-3 mt-2" style="font-family: 'Bricolage Grotesque', sans-serif; text-align: left;">RACK</span>
+                    <div class="p-4 pt-10 space-y-4 text-gray-800">
                         <button @click="showConfigModal = true; toggleSidebar()" class="w-full text-left px-4 py-2 bg-purple-100 hover:bg-purple-200 rounded">Account Configuration</button>
                         <button @click="showLicenseModal = true; toggleSidebar()" class="w-full text-left px-4 py-2 bg-purple-100 hover:bg-purple-200 rounded">License Management</button>
-                        <button @click="showProfileModal = true; toggleSidebar()" class="w-full text-left px-4 py-2 bg-purple-100 hover:bg-purple-200 rounded">Account Profile</button>
                         <div class="flex items-center justify-between px-4 py-2 bg-purple-100 hover:bg-purple-200 rounded">
                             <span class="flex items-center">
                                 Dark Mode
@@ -49,17 +58,25 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                                 </svg>
-                                <div class="w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 relative"><span class="absolute inset-0 flex items-center justify-start text-x text-white" :class="{'opacity-0': !darkMode}">⚪️</span><span class="absolute inset-0 flex items-center justify-end pr-1 text-x text-gray-700" :class="{'opacity-0': darkMode}">⚪️</span></div>
+                                <div class="w-11 h-6 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 relative"><span class="absolute inset-0 flex items-center justify-start ml-1 text-x text-white" :class="{'opacity-0': !darkMode}">⚪️</span><span class="absolute inset-0 flex items-center justify-end pr-1 text-x text-gray-700" :class="{'opacity-0': darkMode}">⚪️</span></div>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                                 </svg>
                             </label>
                         </div>
                     </div>
+                    <div class="mt-auto pt-10 p-4 pt-10 space-y-4 flex justify-between text-gray-800">
+                        <button @click="showProfileModal = true; toggleSidebar()" class="w-full text-left px-4 py-2 bg-purple-100 hover:bg-purple-200 rounded">Account Profile</button>
+                    </div>
                 </div>
             </div>
-            <h1 class="text-4xl font-bold text-gray-800 mb-4" style="font-family: 'Bricolage Grotesque', sans-serif;">Multi-Platform Video Pro</h1>
-            <p class="text-gray-600" style="font-family: 'Bricolage Grotesque', sans-serif;">Create and distribute videos across multiple social media accounts</p>
+            <h1 class="text-4xl font-bold text-gray-800 dark:text-gray-100 disabled:bg-gray-400 mb-4" style="font-family: 'Bricolage Grotesque', sans-serif;">
+                Multi-Platform Video Pro
+            </h1>
+            <p class="text-gray-600 dark:text-gray-100 disabled:bg-gray-400" style="font-family: 'Bricolage Grotesque', sans-serif;">
+                Create and distribute videos across multiple social media accounts
+            </p>
+
         </header>
 
         <div class="grid md:grid-cols-2 gap-8">
@@ -116,7 +133,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <h3 class="font-semibold mb-2" style="font-family: 'Bricolage Grotesque', sans-serif;">TikTok Accounts</h3>
-                            <div class="mb-2">
+                            <div class="mb-5 md:mb-3">
                                 <button @click="selectAllTikTok" class="text-xs bg-purple-500 text-white hover:bg-purple-600 px-2 py-1 rounded-lg">Select All</button>
                             </div>
                             <div class="space-y-2">
@@ -407,11 +424,15 @@
         body {
             font-family: 'Bricolage Grotesque', sans-serif;
             transition: background-color 0.3s ease;
+            padding-top: 50px; /* Add padding for the fixed navbar */
         }
         .dark .bg-white {
             background-color: #1f2937;
         }
-        .dark {
+        .dark .bg-gray-50 {
+            background-color: #374151;
+        }
+        .dark body {
             color: #f3f4f6;
         }
     </style>
